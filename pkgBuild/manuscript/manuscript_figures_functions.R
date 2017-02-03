@@ -48,6 +48,8 @@ ceRate_map <- function(ce=c("colonization","extinction","richness")){
 			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,n_spp_ext_weighted], window=mapOwin[[r]])
 		}else if(ce=="richness"){
 			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,avgRich], window=mapOwin[[r]])
+		}else{
+			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,get(ce)], window=mapOwin[[r]])
 		}
 		
 		t_idw <- spatstat::Smooth(mapPPP_ce[[r]], hmax=1)
@@ -57,21 +59,21 @@ ceRate_map <- function(ce=c("colonization","extinction","richness")){
 	
 		zl <- range(values(z)*10, na.rm=TRUE)
 		switch(rs[r],
-			ebs = mapLegend(x=0.05, y=0.25, h=0.375, w=0.025, zlim=zl, cols=map_col, lab.cex=1),
-			ai = mapLegend(x=0.985, y=0.3, w=0.02, h=0.75, zlim=zl, cols=map_col, lab.cex=1),
+			ebs = mapLegend(x=0.025, y=0.225, h=0.37, w=0.025, zlim=zl, cols=map_col, lab.cex=1),
+			ai = mapLegend(x=0.985, y=0.3, w=0.02, h=0.55, zlim=zl, cols=map_col, lab.cex=1),
 			goa = mapLegend(x=0.985, y=0.15, w=0.02,  zlim=zl, cols=map_col, lab.cex=1),
-			wctri = mapLegend(x=0.1, y=0.120, w=0.2, h=0.15, zlim=zl, cols=map_col, lab.cex=1),
-			gmex = mapLegend(x=0.95, y=0.2, h=0.375, zlim=zl, cols=map_col, lab.cex=1),
+			wctri = mapLegend(x=0.1, y=0.1125, w=0.10, h=0.175, zlim=zl, cols=map_col, lab.cex=1),
+			gmex = mapLegend(x=0.95, y=0.225, h=0.375, zlim=zl, cols=map_col, lab.cex=1),
 			sa = mapLegend(x=0.95, y=0.15, zlim=zl, cols=map_col, lab.cex=1),
 			neus = mapLegend(x=0.95, y=0.15, zlim=zl, cols=map_col, lab.cex=1),
-			shelf = mapLegend(x=0.95, y=0.15, zlim=zl, cols=map_col, lab.cex=1),
-			newf = mapLegend(x=0.05, y=0.15, h=0.20, zlim=zl, cols=map_col, lab.cex=1)
+			shelf = mapLegend(x=0.95, y=0.185, zlim=zl, h=0.31, cols=map_col, lab.cex=1),
+			newf = mapLegend(x=0.05, y=0.125, h=0.20, zlim=zl, cols=map_col, lab.cex=1)
 		)
 		switch(rs[r],
 			ebs = legend("topright", legend="A", bty='n', text.font=2, inset=c(-0.02,-0.15), cex=1.25, text.col='black'),
-			ai = legend("topleft", legend="C", bty='n', text.font=2, inset=c(-0.065,-0.45), cex=1.25, xpd=T),
+			ai = legend("topleft", legend="C", bty='n', text.font=2, inset=c(-0.065,-0.2), cex=1.25, xpd=T),
 			goa = legend("topleft", legend="B", bty='n', text.font=2, inset=c(-0.065,-0.06), cex=1.25),
-			wctri = legend("top", legend="E", bty='n', text.font=2, inset=c(0,0.05), cex=1.25, text.col='black'),
+			wctri = legend("topright", legend="E", bty='n', text.font=2, inset=c(-0.01,-0.05), cex=1.25, text.col='black'),
 			gmex = legend("topleft", legend="G", bty='n', text.font=2, inset=c(-0.175,-0.12), cex=1.25, text.col='black'),
 			sa = legend("topleft", legend="I", bty='n', text.font=2, inset=c(-0.15,-0.075), cex=1.25, text.col='black'),
 			neus = legend("topleft", legend="H", bty='n', text.font=2, inset=c(-0.125,-0.05), cex=1.25, text.col='black'),
@@ -85,6 +87,8 @@ ceRate_map <- function(ce=c("colonization","extinction","richness")){
 		mtext(bquote(Extinction~Rate~(E[w]~~decade^-1)), side=3, outer=TRUE, font=2, line=-0.3)
 	}else if(ce=="richness"){
 		mtext(bquote(Observed~Richness), side=3, outer=TRUE, font=2, line=-0.3)
+	}else{
+		mtext(ce, side=3, outer=TRUE, font=2, line=-0.3)
 	}
 	mtext(bquote(Longitude~(phantom()*degree*E)), side=1, line=0.15, outer=TRUE)
 	mtext(bquote(Latitude~(phantom()*degree*N)), side=2, line=-0.4, outer=TRUE)
@@ -118,15 +122,15 @@ nb_moranI <- function(ce=c("richness", "colonization", "extinction")){
 			map_col <- rbLib::zCol(6, 1:6)
 			points(x=t_lac$I[sig_lac,lon], y=t_lac$I[sig_lac,lat], bg=t_col, pch=21, cex=1.1)
 			switch(rs[r],
-				ebs = mapLegend(x=0.05, y=0.25, h=0.375, w=0.025, zlim=zl, cols=map_col, lab.cex=1),
-				ai = mapLegend(x=0.985, y=0.3, w=0.02, h=0.75, zlim=zl, cols=map_col, lab.cex=1),
+				ebs = mapLegend(x=0.025, y=0.225, h=0.37, w=0.025, zlim=zl, cols=map_col, lab.cex=1),
+				ai = mapLegend(x=0.985, y=0.3, w=0.02, h=0.55, zlim=zl, cols=map_col, lab.cex=1),
 				goa = mapLegend(x=0.985, y=0.15, w=0.02,  zlim=zl, cols=map_col, lab.cex=1),
-				wctri = mapLegend(x=0.1, y=0.120, w=0.2, h=0.15, zlim=zl, cols=map_col, lab.cex=1),
-				gmex = mapLegend(x=0.95, y=0.2, h=0.375, zlim=zl, cols=map_col, lab.cex=1),
+				wctri = mapLegend(x=0.1, y=0.1125, w=0.10, h=0.175, zlim=zl, cols=map_col, lab.cex=1),
+				gmex = mapLegend(x=0.95, y=0.225, h=0.375, zlim=zl, cols=map_col, lab.cex=1),
 				sa = mapLegend(x=0.95, y=0.15, zlim=zl, cols=map_col, lab.cex=1),
 				neus = mapLegend(x=0.95, y=0.15, zlim=zl, cols=map_col, lab.cex=1),
-				shelf = mapLegend(x=0.95, y=0.15, zlim=zl, cols=map_col, lab.cex=1),
-				newf = mapLegend(x=0.05, y=0.15, h=0.20, zlim=zl, cols=map_col, lab.cex=1)
+				shelf = mapLegend(x=0.95, y=0.185, zlim=zl, h=0.31, cols=map_col, lab.cex=1),
+				newf = mapLegend(x=0.05, y=0.125, h=0.20, zlim=zl, cols=map_col, lab.cex=1)
 			)
 		}else{
 			# plot(x=locs[,1], y=locs[,2], col='blue')
