@@ -37,6 +37,7 @@
 # #' date: "2016-08-10"
 # #' title: "manuscript_results.R"
 library('trawlDiversity')
+library('spatialDiversity')
 library('rbLib')
 library("data.table")
 library('maps')
@@ -87,7 +88,7 @@ opts_chunk$set(
 
 
 # setwd("~/Documents/School&Work/pinskyPost/spatialDiversity/pkgBuild/manuscript")
-source("../../../trawlDiversity/pkgBuild/manuscript/manuscript_figures_functions.R")
+source("../manuscript/manuscript_figures_functions.R")
 # source("../manuscript/fig_tbl_number.R")
 # eval(fig_tbl_number())
 
@@ -102,14 +103,14 @@ source("../../../trawlDiversity/pkgBuild/manuscript/manuscript_figures_functions
 #' ##Spatial Clustering of Colonization and Extinction
 #' ###Heat Maps
 #' ####Figure 1. Richness map
-#+ col-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2.** Maps of long-term averages of richness at each site for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Richness values were smoothed using a Gaussian kernel smoother. The smoothed richness value is indicated by the color bars in each panel; colors are scaled independently for each region."
+#+ rich-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2.** Maps of long-term averages of richness at each site for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Richness values were smoothed using a Gaussian kernel smoother. The smoothed richness value is indicated by the color bars in each panel; colors are scaled independently for each region."
 ceRate_map(ce="richness")
 #' 
-#' ####Figure 1. Colonization map
+#' ####Figure 2. Colonization map
 #+ col-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2.** Maps of long-term averages of colonizations per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of colonization rate were smoothed using a Gaussian kernel smoother. The smoothed colonization rate is indicated by the color bars in each panel; colors are scaled independently for each region."
 ceRate_map(ce="colonization")
 #'   
-#' ####Figure 2. Extinction map
+#' ####Figure 3. Extinction map
 #+ ext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S3.** Maps of long-term averages of extinctions per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of extinction rate were smoothed using a Gaussian kernel smoother. The smoothed extinction rate is indicated by the color bars in each panel; colors are scaled independently for each region."
 ceRate_map(ce="extinction")
 #' 
@@ -149,15 +150,15 @@ rel_col_ext_rate <- mapDat[,j={
 # )
 #'   
 #' ###Neighborhoods and Local Moran's I
-#' ####Figure S4. Richness neighborhood
-#+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure X.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
+#' ####Figure 4. Richness neighborhood
+#+ rich-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 4.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
 nb_moranI(ce="richness")
-#' ####Figure S4. Colonization neighborhood
-#+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S4.** Connectivity and local spatial autocorrelation of colonization events in each region."
+#' ####Figure 5. Colonization neighborhood
+#+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5.** Connectivity and local spatial autocorrelation of colonization events in each region."
 nb_moranI(ce="colonization")
 #'   
-#' ####Figure S5. Extinction neighborhood
-#+ ext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S5.** Connectivity and local spatial autocorrelation of extinction events in each region."
+#' ####Figure 6. Extinction neighborhood
+#+ ext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6.** Connectivity and local spatial autocorrelation of extinction events in each region."
 nb_moranI(ce="extinction")
 #'   
 #' \FloatBarrier  
