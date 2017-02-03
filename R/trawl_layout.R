@@ -29,17 +29,17 @@
 #' 
 #' @export
 trawl_layout <- function(){
-	lay_grid <- matrix(1:84, nrow=6, ncol=14)
+	lay_grid <- matrix(1:336, nrow=12, ncol=28)
 	squares <- list(
-		ebs = c(1,26),
-		ai = c(6,42),
-		goa = c(3,41),
-		wctri = c(45,48),
-		gmex = c(53,66),
-		sa = c(70,84), # should really be c(70,77), ... just made it bigger to fill in gap and b/c it's a square
-		neus = c(67,81),
-		shelf = c(31,44),
-		newf = c(49,64)
+		ebs = c(1,112), #c(1,26),
+		ai = c(12,154),# c(6,35), #c(6,42),
+		goa = c(5, 153), #c(3, 34), #c(3,41),
+		wctri = c(161,192), #c(39,48), #c(45,48),
+		gmex = c(201,264), #c(53,66),
+		sa = c(271,336), #c(70,84), # should really be c(70,77), ... just made it bigger to fill in gap and b/c it's a square
+		neus = c(265,330), #c(67,81),
+		shelf = c(121,184), #c(31,44),
+		newf = c(193,260) #c(49,64)
 	)
 	squares_ind <- lapply(squares, function(x)arrayInd(which(lay_grid%in%x),.dim=dim(lay_grid)))
 	map_layout <- array(NA, dim(lay_grid))
