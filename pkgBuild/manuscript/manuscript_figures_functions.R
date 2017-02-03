@@ -6,21 +6,6 @@ library('rbLib')
 library('trawlDiversity')
 library("data.table")
 
-figure_setup <- function(){
-	bquote({
-		regs <- comm_master[,una(reg)] #sapply(p, function(x)x$processed[,una(reg)])
-		pretty_reg <- c("ebs"="E. Bering Sea", "ai"="Aleutian Islands", "goa"="Gulf of Alaska", "wctri"="West Coast US", "gmex"="Gulf of Mexico", "sa"="Southeast US", "neus"="Northeast US", "shelf"="Scotian Shelf", "newf"="Newfoundland")
-		pretty_col <- c('#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','navy','#a65628','salmon','#999999')
-		names(pretty_col) <- names(pretty_reg)
-	})
-}
-
-panLab <- function(){
-	pm <- par("mfg")
-	nmat <- matrix(1:(prod(pm[3:4])), nr=pm[3], nc=pm[4])
-	panelLabel <- LETTERS[nmat[pm[1], pm[2]]]
-	return(panelLabel)
-}
 
 # ---- Colonization Rate ----
 ceRate_map <- function(ce=c("colonization","extinction","richness")){
