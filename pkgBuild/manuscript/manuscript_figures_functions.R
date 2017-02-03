@@ -40,25 +40,25 @@ ceRate_map <- function(ce=c("colonization","extinction","richness")){
 	nr <- length(rs)
 	mapPPP_ce <- list()
 	for(r in 1:nr){
-		td <- mapDat[reg==rs[r]]
+		tr <- rs[r]
+		td <- mapDat[reg==tr]
 		if(ce=="colonization"){
-			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,n_spp_col_weighted], window=mapOwin[[r]]) # /avgRich
-			# mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,n_spp_col_unique], window=mapOwin[[r]]) # /avgRich
+			mapPPP_ce[[tr]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,n_spp_col_weighted], window=mapOwin[[tr]]) 
 		}else if(ce=="extinction"){
-			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,n_spp_ext_weighted], window=mapOwin[[r]])
+			mapPPP_ce[[tr]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,n_spp_ext_weighted], window=mapOwin[[tr]])
 		}else if(ce=="richness"){
-			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,avgRich], window=mapOwin[[r]])
+			mapPPP_ce[[tr]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,avgRich], window=mapOwin[[tr]])
 		}else{
-			mapPPP_ce[[r]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,get(ce)], window=mapOwin[[r]])
+			mapPPP_ce[[tr]] <- spatstat::ppp(x=td[,lon], y=td[,lat], marks=td[,get(ce)], window=mapOwin[[tr]])
 		}
 		
-		t_idw <- spatstat::Smooth(mapPPP_ce[[r]], hmax=1)
+		t_idw <- spatstat::Smooth(mapPPP_ce[[tr]], hmax=1)
 		z <- toRast(t_idw)
 		raster::image(z, col=map_col, xlab="", ylab="", asp=1)
 		map(add=TRUE, fill=TRUE, col="lightgray")
 	
 		zl <- range(values(z)*10, na.rm=TRUE)
-		switch(rs[r],
+		switch(tr,
 			ebs = mapLegend(x=0.025, y=0.225, h=0.37, w=0.025, zlim=zl, cols=map_col, lab.cex=1),
 			ai = mapLegend(x=0.985, y=0.3, w=0.02, h=0.55, zlim=zl, cols=map_col, lab.cex=1),
 			goa = mapLegend(x=0.985, y=0.15, w=0.02,  zlim=zl, cols=map_col, lab.cex=1),
@@ -69,7 +69,7 @@ ceRate_map <- function(ce=c("colonization","extinction","richness")){
 			shelf = mapLegend(x=0.95, y=0.185, zlim=zl, h=0.31, cols=map_col, lab.cex=1),
 			newf = mapLegend(x=0.05, y=0.125, h=0.20, zlim=zl, cols=map_col, lab.cex=1)
 		)
-		switch(rs[r],
+		switch(tr,
 			ebs = legend("topright", legend="A", bty='n', text.font=2, inset=c(-0.02,-0.15), cex=1.25, text.col='black'),
 			ai = legend("topleft", legend="C", bty='n', text.font=2, inset=c(-0.065,-0.2), cex=1.25, xpd=T),
 			goa = legend("topleft", legend="B", bty='n', text.font=2, inset=c(-0.065,-0.06), cex=1.25),
@@ -106,13 +106,14 @@ nb_moranI <- function(ce=c("richness", "colonization", "extinction")){
 	rs <- mapDat[,una(reg)]
 	nr <- length(rs)
 	for(r in 1:nr){
-		t_lac <- localAC[[ce]][[rs[r]]]
-		plot(mapOwin[[rs[r]]], coords=t_lac$I[,list(lon,lat)], add=FALSE, main="")
+		tr <- rs[r]
+		t_lac <- localAC[[ce]][[tr]]
+		plot(mapOwin[[tr]], coords=t_lac$I[,list(lon,lat)], add=FALSE, main="")
 		box()
 		if(rs[r]=='wctri'){
-			mtext(pretty_reg[rs[r]], side=3, line=-3)
+			mtext(pretty_reg[tr], side=3, line=-3)
 		}else{
-			mtext(pretty_reg[rs[r]], side=3, line=-1)
+			mtext(pretty_reg[tr], side=3, line=-1)
 		}
 		plot(t_lac$nb, t_lac$I[,list(lon,lat)], add=TRUE, col=adjustcolor('black', 0.5), cex=0.8, lwd=0.5)
 		sig_lac <- t_lac$I[,lI_pvalue]<0.05
@@ -121,7 +122,7 @@ nb_moranI <- function(ce=c("richness", "colonization", "extinction")){
 			t_col <- rbLib::zCol(256,t_lac$I[sig_lac,Ii])
 			map_col <- rbLib::zCol(6, 1:6)
 			points(x=t_lac$I[sig_lac,lon], y=t_lac$I[sig_lac,lat], bg=t_col, pch=21, cex=1.1)
-			switch(rs[r],
+			switch(tr,
 				ebs = mapLegend(x=0.025, y=0.225, h=0.37, w=0.025, zlim=zl, cols=map_col, lab.cex=1),
 				ai = mapLegend(x=0.985, y=0.3, w=0.02, h=0.55, zlim=zl, cols=map_col, lab.cex=1),
 				goa = mapLegend(x=0.985, y=0.15, w=0.02,  zlim=zl, cols=map_col, lab.cex=1),
