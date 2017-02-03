@@ -149,12 +149,15 @@ rel_col_ext_rate <- mapDat[,j={
 # )
 #'   
 #' ###Neighborhoods and Local Moran's I
+#' ####Figure S4. Richness neighborhood
+#+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure X.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
+nb_moranI(ce="richness")
 #' ####Figure S4. Colonization neighborhood
-#+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S4.** Connectivity and local spatial autocorrelation of colonization events in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
+#+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S4.** Connectivity and local spatial autocorrelation of colonization events in each region."
 nb_moranI(ce="colonization")
 #'   
 #' ####Figure S5. Extinction neighborhood
-#+ ext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S5.** Connectivity and local spatial autocorrelation of extinction events in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
+#+ ext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S5.** Connectivity and local spatial autocorrelation of extinction events in each region."
 nb_moranI(ce="extinction")
 #'   
 #' \FloatBarrier  
