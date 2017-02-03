@@ -107,18 +107,18 @@ ceRate_map <- function(ce=c("colonization","extinction","richness")){
 }
 
 # ---- Neighborhood used in Moran's I ----
-nb_moranI <- function(ce=c("colonization", "extinction")){
+nb_moranI <- function(ce=c("richness", "colonization", "extinction")){
 	eval(figure_setup())
 	map_layout <- trawl_layout()
 	par(mar=c(0.25,0.25,0.25,0.25), mgp=c(0.25,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.1,0.1,0.1,0.1))
 	layout(map_layout)
 	pretty_reg <- c("ebs"="E. Bering Sea", "ai"="Aleutian Islands", "goa"="Gulf of Alaska", "wctri"="West\nCoast\nUS", "gmex"="Gulf of Mexico", "sa"="Southeast US", "neus"="Northeast US", "shelf"="Scotian Shelf", "newf"="Newfoundland")
 
-	rs <- mapDat[,una(reg)]
+	rs <- trawlDiversity::mapDat[,una(reg)]
 	nr <- length(rs)
 	for(r in 1:nr){
-		t_lac <- localAC[[ce]][[rs[r]]]
-		plot(mapOwin[[rs[r]]], coords=t_lac$I[,list(lon,lat)], add=FALSE, main="")
+		t_lac <- trawlDiversity::localAC[[ce]][[rs[r]]]
+		plot(trawlDiversity::mapOwin[[rs[r]]], coords=t_lac$I[,list(lon,lat)], add=FALSE, main="")
 		box()
 		if(rs[r]=='wctri'){
 			mtext(pretty_reg[rs[r]], side=3, line=-3)
