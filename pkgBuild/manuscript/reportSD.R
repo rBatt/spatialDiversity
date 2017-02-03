@@ -123,6 +123,9 @@ map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRi
 	sppp(x=X[,lon], y=X[,lat], marks=X[,get(val)], window=mapOwin[[r]])
 }
 rel_col_ext_rate <- mapDat[,j={
+	map_smooth_rich <- map_smooth(.SD, "avgRich")
+	mark_range_rich <- range(map_smooth_rich, na.rm=TRUE)*10
+	
 	map_smooth_col <- map_smooth(.SD, "n_spp_col_weighted")
 	mark_range_col <- range(map_smooth_col, na.rm=TRUE)*10
 	
@@ -130,6 +133,8 @@ rel_col_ext_rate <- mapDat[,j={
 	mark_range_ext <- range(map_smooth_ext, na.rm=TRUE)*10
 	
 	ol <- list(
+		minval_rich=mark_range_rich[1], maxval_rich=mark_range_rich[2], 
+		max_o_min_rich=do.call("/",as.list(rev(mark_range_rich))),
 		minval_col=mark_range_col[1], maxval_col=mark_range_col[2], 
 		max_o_min_col=do.call("/",as.list(rev(mark_range_col))),
 		minval_ext=mark_range_ext[1], maxval_ext=mark_range_ext[2], 
