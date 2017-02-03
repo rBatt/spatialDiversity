@@ -1,6 +1,15 @@
+setwd("~/Documents/School&Work/pinskyPost/spatialDiversity")
 
 # ---- Map Data ----
-mapDat <- make_mapDat(p)
+u_dat <- trawlDiversity::comm_master[,list(msom_years=unique(year)), by="reg"]
+u_reg <- u_dat[,unique(reg)]
+n_reg <- length(u_reg)
+small_p <- vector("list", n_reg)
+for(r in 1:n_reg){
+	t_reg <- 
+	small_p[[r]] <- trawlDiversity::process_obsRich(trawlDiversity::data_all[reg==u_reg[r]], msom_yrs=u_dat[reg==u_reg[r],msom_years])
+}
+mapDat <- make_mapDat(small_p)
 
 # ---- Function to help outline a region ----
 regOutline <- function(X){
@@ -23,16 +32,16 @@ regOutline <- function(X){
 # save(outlines, file="~/Documents/School&Work/pinskyPost/trawl/trawlDiversity/data/outlines.RData")
 
 # ---- make window polygon for ppp ----
-mapOwin <- trawlDiversity::make_owin(mapDat, outlines)
+mapOwin <- make_owin(mapDat, outlines)
 
 # ---- calculate spatial autocorrelation ----
 rs <- mapDat[,una(reg)]
 nr <- length(rs)
-localAC <- list(colonization=list(), extinction=list())
+localAC <- list(richness=list(), colonization=list(), extinction=list())
 # lac_val <- c("n_spp_col_weighted", "n_spp_col_unique")[1]
-lac_val <- c("n_spp_col_weighted", "n_spp_ext_weighted")
+lac_val <- c("avgRich", "n_spp_col_weighted", "n_spp_ext_weighted")
 ce_types <- names(localAC) #c("colonization","extinction")
-for(ce in 1:2){
+for(ce in 1:length(lac_val)){
 	for(r in 1:nr){
 		lac_val_ce <- lac_val[ce]
 		# t_lac <- with(mapDat[reg==rs[r]], spatial_ac(lon, lat, n_spp_col_weighted))
@@ -46,6 +55,8 @@ for(ce in 1:2){
 		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_col=Ii,lI_pvalue_col=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
 	}else if(ce_types[ce]=="extinction"){
 		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_ext=Ii,lI_pvalue_ext=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
+	}else if(ce_types[ce]=="richness"){
+		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_rich=Ii,lI_pvalue_rich=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
 	}
 	mapDat[,reg:=factor(reg, levels=c("ebs", "ai", "goa", "wctri", "gmex", "sa", "neus", "shelf", "newf"))]
 	setorder(mapDat, reg, stratum)
