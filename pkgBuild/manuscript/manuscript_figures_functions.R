@@ -103,11 +103,11 @@ nb_moranI <- function(ce=c("richness", "colonization", "extinction")){
 	layout(map_layout)
 	pretty_reg <- c("ebs"="E. Bering Sea", "ai"="Aleutian Islands", "goa"="Gulf of Alaska", "wctri"="West\nCoast\nUS", "gmex"="Gulf of Mexico", "sa"="Southeast US", "neus"="Northeast US", "shelf"="Scotian Shelf", "newf"="Newfoundland")
 
-	rs <- trawlDiversity::mapDat[,una(reg)]
+	rs <- mapDat[,una(reg)]
 	nr <- length(rs)
 	for(r in 1:nr){
-		t_lac <- trawlDiversity::localAC[[ce]][[rs[r]]]
-		plot(trawlDiversity::mapOwin[[rs[r]]], coords=t_lac$I[,list(lon,lat)], add=FALSE, main="")
+		t_lac <- localAC[[ce]][[rs[r]]]
+		plot(mapOwin[[rs[r]]], coords=t_lac$I[,list(lon,lat)], add=FALSE, main="")
 		box()
 		if(rs[r]=='wctri'){
 			mtext(pretty_reg[rs[r]], side=3, line=-3)
