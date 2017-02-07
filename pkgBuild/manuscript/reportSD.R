@@ -120,7 +120,7 @@ ceRate_map(ce="richness")
 ceRate_map(ce="colonization")
 #' 
 #' ####Figure 2b. Unique Colonization map
-#+ ucol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2b.** Maps of long-term averages of colonizations per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of colonization rate were smoothed using a Gaussian kernel smoother. The smoothed colonization rate is indicated by the color bars in each panel; colors are scaled independently for each region."
+#+ ucol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2b.** Maps of the number of unique species with regional colonizations involving each site."
 ceRate_map(ce="uCol")
 #'   
 #' ####Figure 3. Extinction map
@@ -128,7 +128,7 @@ ceRate_map(ce="uCol")
 ceRate_map(ce="extinction")
 #'   
 #' ####Figure 3b. Unique Extinction map
-#+ uext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3b.** Maps of long-term averages of extinctions per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of extinction rate were smoothed using a Gaussian kernel smoother. The smoothed extinction rate is indicated by the color bars in each panel; colors are scaled independently for each region."
+#+ uext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3b.** Maps of the number of unique species with regional colonizations involving each site."
 ceRate_map(ce="uExt")
 #' 
 #' Hotspots can be seen in most regions. Newfoundland also has high values around its edge (as opposed to interior), it seems. NEUS and Gmex show very strong hotspots, and other locations tend to be much much lower. Other regions show more of a continuum.  
@@ -188,14 +188,22 @@ nb_moranI(ce="colonization")
 #' ####Figure 5b. Unique Colonization neighborhood
 #+ ucol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5b.** Connectivity and local spatial autocorrelation of colonization events (each species only counted once per stratum) in each region."
 nb_moranI(ce="uCol")
+#' 
+#' ####Figure 5c. Total Colonization neighborhood
+#+ totcol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5c.** Connectivity and local spatial autocorrelation of colonization events (each species possibly counted more than once per stratum) in each region."
+nb_moranI(ce="totCol")
 #'   
 #' ####Figure 6. Extinction neighborhood
 #+ ext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6.** Connectivity and local spatial autocorrelation of extinction events in each region."
 nb_moranI(ce="extinction")
 #'   
-#' ####Figure 6b. Extinction neighborhood
+#' ####Figure 6b. Unique Extinction neighborhood
 #+ uext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6b.** Connectivity and local spatial autocorrelation of extinction events (each species only counted once per stratum) in each region."
 nb_moranI(ce="uExt")
+#'   
+#' ####Figure 6c. Total Extinction neighborhood
+#+ totext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6c.** Connectivity and local spatial autocorrelation of extinction events (each species possibly counted more than once per stratum) in each region."
+nb_moranI(ce="totExt")
 #'   
 #' \FloatBarrier  
 #'   
