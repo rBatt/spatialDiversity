@@ -8,7 +8,7 @@ library("data.table")
 
 
 # ---- Colonization Rate ----
-ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt")){
+ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt")){
 	ce <- match.arg(ce)
 	eval(figure_setup())
 	map_layout <- trawl_layout()
@@ -96,7 +96,7 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 }
 
 # ---- Neighborhood used in Moran's I ----
-nb_moranI <- function(ce=c("richness", "colonization", "extinction", "uCol", "uExt")){
+nb_moranI <- function(ce=c("richness", "colonization", "extinction", "uCol", "uExt", "totCol", "totExt")){
 	eval(figure_setup())
 	map_layout <- trawl_layout()
 	par(mar=c(0.25,0.25,0.25,0.25), mgp=c(0.25,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.1,0.1,0.1,0.1))

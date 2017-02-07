@@ -122,6 +122,10 @@ ceRate_map(ce="colonization")
 #' ####Figure 2b. Unique Colonization map
 #+ ucol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2b.** Maps of the number of unique species with regional colonizations involving each site."
 ceRate_map(ce="uCol")
+#' 
+#' ####Figure 2c. Total Colonization map
+#+ totcol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2c.** Maps of total colonizations per site."
+ceRate_map(ce="totCol")
 #'   
 #' ####Figure 3. Extinction map
 #+ ext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3.** Maps of long-term averages of extinctions per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of extinction rate were smoothed using a Gaussian kernel smoother. The smoothed extinction rate is indicated by the color bars in each panel; colors are scaled independently for each region."
@@ -130,12 +134,16 @@ ceRate_map(ce="extinction")
 #' ####Figure 3b. Unique Extinction map
 #+ uext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3b.** Maps of the number of unique species with regional colonizations involving each site."
 ceRate_map(ce="uExt")
+#'   
+#' ####Figure 3c. Toal Extinction map
+#+ totext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3c.** Maps of the total number of regional extinctions involving each site."
+ceRate_map(ce="totExt")
 #' 
 #' Hotspots can be seen in most regions. Newfoundland also has high values around its edge (as opposed to interior), it seems. NEUS and Gmex show very strong hotspots, and other locations tend to be much much lower. Other regions show more of a continuum.  
 #'     
 #+ col-ext-intensities, echo=TRUE,  cache=FALSE
 sppp <- function(...){spatstat::Smooth(spatstat::ppp(...), hmax=1)}
-map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRich","uCol","uExt")){
+map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRich","uCol","uExt","totCol","totExt")){
 	val <- match.arg(val)
 	r <- X[,unique(reg)]
 	sppp(x=X[,lon], y=X[,lat], marks=X[,get(val)], window=mapOwin[[r]])
@@ -156,6 +164,12 @@ rel_col_ext_rate <- mapDat[,j={
 	map_smooth_uExt <- map_smooth(.SD, "uExt")
 	mark_range_uExt <- range(map_smooth_uExt, na.rm=TRUE)*10
 	
+	map_smooth_totCol <- map_smooth(.SD, "totCol")
+	mark_range_totCol <- range(map_smooth_totCol, na.rm=TRUE)*10
+	
+	map_smooth_totExt <- map_smooth(.SD, "totExt")
+	mark_range_totExt <- range(map_smooth_totExt, na.rm=TRUE)*10
+	
 	ol <- list(
 		minval_rich=mark_range_rich[1], maxval_rich=mark_range_rich[2], 
 		max_o_min_rich=do.call("/",as.list(rev(mark_range_rich))),
@@ -166,7 +180,11 @@ rel_col_ext_rate <- mapDat[,j={
 		minval_uCol=mark_range_uCol[1], maxval_uCol=mark_range_uCol[2], 
 		max_o_min_uCol=do.call("/",as.list(rev(mark_range_uCol))),
 		minval_uExt=mark_range_uExt[1], maxval_uExt=mark_range_uExt[2], 
-		max_o_min_uExt=do.call("/",as.list(rev(mark_range_uExt)))
+		max_o_min_uExt=do.call("/",as.list(rev(mark_range_uExt))),
+		minval_totCol=mark_range_totCol[1], maxval_totCol=mark_range_totCol[2], 
+		max_o_min_totCol=do.call("/",as.list(rev(mark_range_totCol))),
+		minval_totExt=mark_range_totExt[1], maxval_totExt=mark_range_totExt[2], 
+		max_o_min_totExt=do.call("/",as.list(rev(mark_range_totExt)))
 	)
 	lapply(ol, function(x)if(is.numeric(x)){signif(x,3)}else{x})
 },by=c("reg"), .SDcols=names(mapDat)]
@@ -250,6 +268,26 @@ par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
 		plot(uExt, uCol)
+		mtext(ureg[r],side=3,line=0.5,font=2)
+	}]
+}
+#' 
+#' ####Figure 11. Total Colonization vs Unique Colonization
+#+ totcolVucol, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 11.** The total number of colonization events at each site vs the number of species that ever had a colonization event involving the site."
+par(mfrow=c(3,3))
+for(r in 1:length(ureg)){
+	mapDat[reg==ureg[r],j={
+		plot(uCol, totCol)
+		mtext(ureg[r],side=3,line=0.5,font=2)
+	}]
+}
+#' 
+#' ####Figure 12. Total Extinction vs Unique Extinction
+#+ totextVuext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 12.** The total number of extinction events at each site vs the number of species that ever had an extinction event involving the site."
+par(mfrow=c(3,3))
+for(r in 1:length(ureg)){
+	mapDat[reg==ureg[r],j={
+		plot(uExt, totExt)
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
