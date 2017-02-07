@@ -42,11 +42,24 @@ make_mapDat <- function(p){
 		}
 		n_uSppPerStrat_ce <- get_uniqueCE(p[[r]]) # n_uSppPerStrat_ce <- rbindlist(lapply(p, get_uniqueCE))
 		
+		# part 4, total colonizers (belongs in trawlDiversity::get_colonizers, if put in this pkg)
+		n_totSppPerStrat_expr <- bquote(.SD[,sum(col_logic)])
+		get_totalCE <- function(x){
+			reg_name <- x$rd[,unique(reg)]
+			t_c <- x$colonization
+			n_totSppPerStrat_exts <- t_c$ext_dt[, list(totExt=eval(n_totSppPerStrat_expr)), by=c("stratum")]
+			n_totSppPerStrat_cols <- t_c$col_dt[, list(totCol=eval(n_totSppPerStrat_expr)), by=c("stratum")]
+			data.table(reg=reg_name, merge(n_totSppPerStrat_exts,n_totSppPerStrat_cols, all=TRUE))
+		}
+		n_totSppPerStrat_ce <- get_totalCE(p[[r]])
+		
+		
 		# Merge parts
 		to_merge <- c(p[[r]]$colonization[c("n_spp_col_weighted_tot","n_spp_ext_weighted_tot","n_cep")])
 		mapDat[[r]] <- merge(to_merge[["n_spp_col_weighted_tot"]], to_merge[["n_spp_ext_weighted_tot"]], by=c("stratum","lon","lat","depth","yrs_sampled"),all=TRUE)
 		mapDat[[r]] <- merge(mapDat[[r]], pt2, by="stratum",all=TRUE)
 		mapDat[[r]] <- merge(mapDat[[r]], n_uSppPerStrat_ce, by=c("reg","stratum"),all=TRUE)
+		mapDat[[r]] <- merge(mapDat[[r]], n_totSppPerStrat_ce, by=c("reg","stratum"),all=TRUE)
 	}
 	mapDat <- rbindlist(mapDat)[reg!="wcann"]
 	# mapDim <- mapDat[,list(r_lon=diff(range(lon)),r_lat=diff(range(lat))),by="reg"]

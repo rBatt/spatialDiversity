@@ -1,9 +1,11 @@
+
 library(trawlData)
 library(trawlDiversity)
 library(spatialDiversity)
 library(rbLib)
 
 setwd("~/Documents/School&Work/pinskyPost/spatialDiversity")
+invisible(lapply(list.files("R",full=TRUE), source))
 
 # ---- Map Data ----
 u_dat <- trawlDiversity::comm_master[,list(msom_years=unique(year)), by="reg"]
@@ -77,9 +79,9 @@ mapOwin <- make_owin(mapDat, outlines)
 # ---- calculate spatial autocorrelation ----
 rs <- mapDat[,una(reg)]
 nr <- length(rs)
-localAC <- list(richness=list(), colonization=list(), extinction=list(), uCol=list(), uExt=list())
+localAC <- list(richness=list(), colonization=list(), extinction=list(), uCol=list(), uExt=list(), totCol=list(), totExt=list())
 # lac_val <- c("n_spp_col_weighted", "n_spp_col_unique")[1]
-lac_val <- c("avgRich", "n_spp_col_weighted", "n_spp_ext_weighted", "uCol", "uExt")
+lac_val <- c("avgRich", "n_spp_col_weighted", "n_spp_ext_weighted", "uCol", "uExt", "totCol", "totExt")
 ce_types <- names(localAC) #c("colonization","extinction")
 for(ce in 1:length(lac_val)){
 	for(r in 1:nr){
@@ -101,6 +103,10 @@ for(ce in 1:length(lac_val)){
 		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_uCol=Ii,lI_pvalue_uCol=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
 	}else if(ce_types[ce]=="uExt"){
 		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_uExt=Ii,lI_pvalue_uExt=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
+	}else if(ce_types[ce]=="totCol"){
+		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_totCol=Ii,lI_pvalue_totCol=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
+	}else if(ce_types[ce]=="totExt"){
+		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_totExt=Ii,lI_pvalue_totExt=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
 	}
 	mapDat[,reg:=factor(reg, levels=c("ebs", "ai", "goa", "wctri", "gmex", "sa", "neus", "shelf", "newf"))]
 	setorder(mapDat, reg, stratum)
