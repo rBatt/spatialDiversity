@@ -1,3 +1,8 @@
+library(trawlData)
+library(trawlDiversity)
+library(spatialDiversity)
+library(rbLib)
+
 setwd("~/Documents/School&Work/pinskyPost/spatialDiversity")
 
 # ---- Map Data ----
@@ -9,7 +14,42 @@ for(r in 1:n_reg){
 	t_reg <- 
 	small_p[[r]] <- trawlDiversity::process_obsRich(trawlDiversity::data_all[reg==u_reg[r]], msom_yrs=u_dat[reg==u_reg[r],msom_years])
 }
+
+# # start new
+# n_uSppPerStrat_expr <- bquote(.SD[(col_logic),length(unique(spp))])
+# get_uniqueCE <- function(x){
+# 	reg_name <- x$rd[,unique(reg)]
+# 	t_c <- x$colonization
+# 	n_uSppPerStrat_exts <- t_c$ext_dt[, list(uExt=eval(n_uSppPerStrat_expr)), by=c("stratum")]
+# 	n_uSppPerStrat_cols <- t_c$col_dt[, list(uCol=eval(n_uSppPerStrat_expr)), by=c("stratum")]
+# 	data.table(reg=reg_name, merge(n_uSppPerStrat_exts,n_uSppPerStrat_cols, all=TRUE))
+# }
+# n_uSppPerStrat_ce <- rbindlist(lapply(small_p, get_uniqueCE))
+#
+# # # quick plot
+# # n_uSppPerStrat_ce[,plot(jitter(uExt, factor=2), jitter(uCol, factor=2), col=as.factor(reg), pch=20)]
+# # abline(a=0, b=1)
+# # n_uSppPerStrat_ce[,legend("topleft", legend=unique(reg), col=as.factor(unique(reg)), pch=19)]
+# #
+# # par(mfrow=c(3,3))
+# # n_uSppPerStrat_ce[,j={plot(uExt, uCol);abline(a=0,b=1);mtext(reg, side=3, line=0.5, font=2)},by='reg']
+#
+# # end new
+
 mapDat <- make_mapDat(small_p)
+
+# # start new
+# mapDat2 <- merge(mapDat, n_uSppPerStrat_ce)
+#
+# par(mfrow=c(3,3))
+# mapDat2[,j={plot(uCol,n_spp_col_weighted*yrs_sampled);abline(a=0,b=1);mtext(reg, side=3, line=0.5, font=2)},by="reg"]
+#
+# par(mfrow=c(3,3))
+# mapDat2[,j={plot(uExt,n_spp_ext_weighted*yrs_sampled);abline(a=0,b=1);mtext(reg, side=3, line=0.5, font=2)},by="reg"]
+# # end new
+
+
+
 
 # ---- Function to help outline a region ----
 regOutline <- function(X){
@@ -37,9 +77,9 @@ mapOwin <- make_owin(mapDat, outlines)
 # ---- calculate spatial autocorrelation ----
 rs <- mapDat[,una(reg)]
 nr <- length(rs)
-localAC <- list(richness=list(), colonization=list(), extinction=list())
+localAC <- list(richness=list(), colonization=list(), extinction=list(), uCol=list(), uExt=list())
 # lac_val <- c("n_spp_col_weighted", "n_spp_col_unique")[1]
-lac_val <- c("avgRich", "n_spp_col_weighted", "n_spp_ext_weighted")
+lac_val <- c("avgRich", "n_spp_col_weighted", "n_spp_ext_weighted", "uCol", "uExt")
 ce_types <- names(localAC) #c("colonization","extinction")
 for(ce in 1:length(lac_val)){
 	for(r in 1:nr){
@@ -57,6 +97,10 @@ for(ce in 1:length(lac_val)){
 		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_ext=Ii,lI_pvalue_ext=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
 	}else if(ce_types[ce]=="richness"){
 		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_rich=Ii,lI_pvalue_rich=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
+	}else if(ce_types[ce]=="uCol"){
+		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_uCol=Ii,lI_pvalue_uCol=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
+	}else if(ce_types[ce]=="uExt"){
+		mapDat <- merge(mapDat, lac_2mapDat[,list(reg,stratum,Ii_uExt=Ii,lI_pvalue_uExt=lI_pvalue)], by=c("reg","stratum"), all=TRUE)
 	}
 	mapDat[,reg:=factor(reg, levels=c("ebs", "ai", "goa", "wctri", "gmex", "sa", "neus", "shelf", "newf"))]
 	setorder(mapDat, reg, stratum)
