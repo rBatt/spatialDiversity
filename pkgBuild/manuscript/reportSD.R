@@ -278,6 +278,7 @@ par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
 		plot(uCol, totCol)
+		abline(a=0, b=1)
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
@@ -288,6 +289,7 @@ par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
 		plot(uExt, totExt)
+		abline(a=0, b=1)
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
