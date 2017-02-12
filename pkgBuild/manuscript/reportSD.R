@@ -297,3 +297,18 @@ for(r in 1:length(ureg)){
 #' \FloatBarrier  
 #'   
 #' ***  
+#' 
+#+ tbl-fracColExtInHotspot
+mapDat[,
+	list(
+		hotspotFracCol=sum(totCol[lI_pvalue_totCol<0.05])/sum(totCol), 
+		hotspotFracColNSPots=sum(lI_pvalue_totCol<0.05)/length(stratum),
+		hotspotFracExt=sum(totExt[lI_pvalue_totExt<0.05])/sum(totExt), 
+		hotspotFracExtNSPots=sum(lI_pvalue_totExt<0.05)/length(stratum)
+	),by=c("reg")
+]
+#'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#' 
