@@ -299,14 +299,21 @@ for(r in 1:length(ureg)){
 #' ***  
 #' 
 #+ tbl-fracColExtInHotspot
-mapDat[,
+mapDat[,j={
+	sigColInd <- lI_pvalue_totCol<0.05
+	sigExtInd <- lI_pvalue_totExt<0.05
+	muCol <- mean(totCol)
+	muExt <- mean(totExt)
+	hotspotIndCol <- sigColInd & (totCol > muCol)
+	hotspotIndExt <- sigExtInd & (totExt > muExt)
+	
 	list(
-		hotspotFracCol=sum(totCol[lI_pvalue_totCol<0.05])/sum(totCol), 
-		hotspotFracColNSPots=sum(lI_pvalue_totCol<0.05)/length(stratum),
-		hotspotFracExt=sum(totExt[lI_pvalue_totExt<0.05])/sum(totExt), 
-		hotspotFracExtNSPots=sum(lI_pvalue_totExt<0.05)/length(stratum)
-	),by=c("reg")
-]
+		hotspotFracCol=sum(totCol[hotspotIndCol])/sum(totCol), 
+		hotspotFracColNSPots=sum(hotspotIndCol)/length(stratum),
+		hotspotFracExt=sum(totExt[hotspotIndExt])/sum(totExt), 
+		hotspotFracExtNSPots=sum(hotspotIndExt)/length(stratum)
+	)
+},by=c("reg")]
 #'   
 #' \FloatBarrier  
 #'   
