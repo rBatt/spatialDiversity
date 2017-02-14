@@ -12,9 +12,17 @@ u_dat <- trawlDiversity::comm_master[,list(msom_years=unique(year)), by="reg"]
 u_reg <- u_dat[,unique(reg)]
 n_reg <- length(u_reg)
 small_p <- vector("list", n_reg)
+data_all2 <- copy(trawlDiversity::data_all)
+data_all2 <- data_all2[K==1]
+
+# par(mfrow=c(3,3))
+# data_all2[,unique(Kmax),by=c('reg','year','stratum')][,sum(V1<=1)/length(V1),by=c("reg","year")][reg!='wcann',j={plot(year,V1,ylim=c(0,1));NULL},by='reg']
+# data_all2[,unique(Kmax),by=c('reg','year','stratum')][,sum(V1<=1)/length(V1),by=c("reg","year")][reg!='wcann',mean(V1),by='reg']
+# # from this i learn that in *almost* every year and region there is at least 1 site with only 1 tow. There are a couple instances where the minimum number of tows might be a bit higher (like 2). The fraction of sites with 1 tow is around 20%; averaging across years, some regions typicall have as few as 7% of sites with <= 1 tow (gmex, goa at 8%), or with a cross-year average of as many as 47% of sites having <= 1 tow (ebs; next in line is newf with 29%, so ebs is an extreme case).
+
 for(r in 1:n_reg){
-	t_reg <- 
-	small_p[[r]] <- trawlDiversity::process_obsRich(trawlDiversity::data_all[reg==u_reg[r]], msom_yrs=u_dat[reg==u_reg[r],msom_years])
+	t_reg <- u_reg[r]
+	small_p[[r]] <- trawlDiversity::process_obsRich(data_all2[reg==t_reg], msom_yrs=u_dat[reg==t_reg,msom_years])
 }
 
 # # start new
