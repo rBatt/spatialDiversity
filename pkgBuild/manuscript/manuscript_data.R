@@ -46,7 +46,7 @@ for(r in 1:n_reg){
 #
 # # end new
 
-mapDat <- make_mapDat(small_p)
+mapDat <- spatialDiversity::make_mapDat(small_p)
 
 # # start new
 # mapDat2 <- merge(mapDat, n_uSppPerStrat_ce)
