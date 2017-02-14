@@ -242,7 +242,7 @@ for(r in 1:length(ureg)){
 # par(mfrow=c(3,3));mapDat[,j={plot(depth, uCol);mtext(reg,side=3,line=0.5,font=2)},by='reg'] # no relationship between depth and number of species that had a colonization event involving the stratum, nor, as shown by switch uCol to uExt, between depth and extinction
 #' 
 #' ####Figure 8. Unique Colonization vs Richness
-#+ colVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 8.** Long-term average of each site's richness vs the number of species that ever had a colonization event involving that site."
+#+ colVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 8.** The number of species that ever had a regional colonization event involving that site vs long-term average of each site's richness."
 par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
@@ -252,7 +252,7 @@ for(r in 1:length(ureg)){
 }
 #' 
 #' ####Figure 9.  Unique Extinction vs Richness
-#+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 9.** Long-term average of each site's richness vs the number of species that ever had an extinction event involving that site."
+#+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 9.** The number of species that ever had a regional extinction event involving that site vs long-term average of each site's richness."
 par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
@@ -314,6 +314,7 @@ mapDat[,j={
 		hotspotFracExtNSPots=sum(hotspotIndExt)/length(stratum)
 	)
 },by=c("reg")]
+kable(fracHotspot)
 #'   
 #' \FloatBarrier  
 #'   
