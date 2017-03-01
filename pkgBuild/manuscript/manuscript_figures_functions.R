@@ -55,7 +55,14 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 		t_idw <- spatstat::Smooth(mapPPP_ce[[tr]], hmax=1)
 		z <- toRast(t_idw)
 		raster::image(z, col=map_col, xlab="", ylab="", asp=1)
-		map(add=TRUE, fill=TRUE, col="lightgray")
+		if(tr=="ai"){
+			w2 <- map('world2', plot=FALSE)
+			w2$x <- w2$x-360
+			map(w2, add=TRUE, fill=TRUE, col="lightgray")
+		}else{
+			map(add=TRUE, fill=TRUE, col="lightgray")
+		}
+
 	
 		zl <- range(values(z)*10, na.rm=TRUE)
 		switch(tr,
