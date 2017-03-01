@@ -17,6 +17,7 @@ cePCH <- function(region, ce_type=c("tot","u","original")){
 	}
 	
 	mD <- mapDat[reg==region]
+	setnames(mD,c("n_spp_col_weighted", "n_spp_ext_weighted"), c("col", "ext"))
 	
 	pval_col <- mD[,get(paste0("lI_pvalue_",ce_suff[1]))]
 	pval_ext <- mD[,get(paste0("lI_pvalue_",ce_suff[2]))]
@@ -87,12 +88,23 @@ cePCH <- function(region, ce_type=c("tot","u","original")){
 # }
 
 # ---- Colonization Rate ----
-ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt"), add_lisa=TRUE){
+ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt"), add_lisa=TRUE, ce_type=c("tot","u","original")){
 	ce <- match.arg(ce)
 	eval(figure_setup())
 	map_layout <- trawl_layout()
 	par(mar=c(0.9,0.9,0.25,0.25), mgp=c(0.5,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.85,0.6,1,0.1))
 	layout(map_layout)
+	
+	ce_type <- match.arg(ce_type) 
+	ce_type <- switch(ce,
+		colonization = 'original',
+		extinction = 'original',
+		richness = ce_type,
+		uCol = 'u',
+		uExt = 'u',
+		totCol = 'tot',
+		totExt = 'tot'
+	)
 
 	map_col <- grDevices::colorRampPalette(c("#000099", "#00FEFF", "#45FE4F", "#FCFF00", "#FF9400", "#FF3100"))(256)
 	toRast <- function(p){
@@ -143,7 +155,7 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 		}
 		
 		if(add_lisa){
-			pc <- cePCH(tr)
+			pc <- cePCH(tr, ce_type=ce_type)
 			pc[[1]][pc[[1]]==1] <- NA
 			
 			sigRichInd <- mapDat[reg==tr, lI_pvalue_rich<0.05]
