@@ -1,14 +1,93 @@
+
 library('maps')
 library('raster')
 library('spatstat')
 library("spdep")
 library('rbLib')
-library('trawlDiversity')
+library('spatialDiversity')
 library("data.table")
 
+cePCH <- function(region, ce_type=c("tot","u","original")){
+	ce_type <- match.arg(ce_type)
+	if(ce_type=="original"){
+		ce_type <- ""
+		ce_suff <- c("col","ext")
+	}else{
+		ce_suff <- paste0(ce_type, c("Col","Ext"))
+	}
+	
+	mD <- mapDat[reg==region]
+	
+	pval_col <- mD[,get(paste0("lI_pvalue_",ce_suff[1]))]
+	pval_ext <- mD[,get(paste0("lI_pvalue_",ce_suff[2]))]
+	sigColInd <- pval_col<0.05
+	sigExtInd <- pval_ext<0.05
+	
+	muCol <- mD[,mean(get(ce_suff[1]))]
+	muExt <- mD[,mean(get(ce_suff[2]))]
+	
+	hotspotIndCol <- sigColInd #& (totCol > muCol)
+	hotspotIndExt <- sigExtInd #& (totExt > muExt)
+	both <- hotspotIndExt&hotspotIndCol
+	neither <- !hotspotIndExt&!hotspotIndCol
+	
+	cols <- vector("character", length(hotspotIndCol))
+	cols[hotspotIndCol] <- "blue"
+	cols[hotspotIndExt] <- "red"
+	cols[both] <- "purple"
+	cols[neither] <- "black"
+	
+	pchs <- vector("integer", length(hotspotIndCol))
+	pchs[hotspotIndCol] <- 3
+	pchs[hotspotIndExt] <- 4
+	pchs[both] <- 5
+	pchs[neither] <- 1
+	
+	return(list(pchs, cols))
+}
+
+
+
+#
+#
+# for(r in 1:length(ureg)){
+# 	mapDat[reg==ureg[r],j={
+# 		sigColInd <- lI_pvalue_uCol<0.05
+# 		sigExtInd <- lI_pvalue_uExt<0.05
+# 		muCol <- mean(uCol)
+# 		muExt <- mean(uExt)
+# 		hotspotIndCol <- sigColInd #& (totCol > muCol)
+# 		hotspotIndExt <- sigExtInd #& (totExt > muExt)
+# 		both <- hotspotIndExt&hotspotIndCol
+# 		neither <- !hotspotIndExt&!hotspotIndCol
+#
+# 		cols <- vector("character", length(hotspotIndCol))
+# 		cols[hotspotIndCol] <- "blue"
+# 		cols[hotspotIndExt] <- "red"
+# 		cols[both] <- "purple"
+# 		cols[neither] <- "black"
+#
+# 		pchs <- vector("integer", length(hotspotIndCol))
+# 		pchs[hotspotIndCol] <- 3
+# 		pchs[hotspotIndExt] <- 4
+# 		pchs[both] <- 5
+# 		pchs[neither] <- 1
+#
+#
+# 		# pchs <- rep(21, length(hotspotIndExt))
+# 		# pchs[!neither] <- 19
+#
+# 		plot(uExt, uCol, col=cols, pch=pchs, cex=1.2)
+# 		mtext(pretty_reg[ureg[r]],side=3,line=0.01,font=2)
+#
+# 		sigRichInd <- lI_pvalue_rich<0.05
+# 		hotspotIndRich <- sigRichInd
+# 		points(uExt[hotspotIndRich], uCol[hotspotIndRich], col='gray', pch=20, cex=0.7)
+# 	}]
+# }
 
 # ---- Colonization Rate ----
-ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt")){
+ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt"), add_lisa=TRUE){
 	ce <- match.arg(ce)
 	eval(figure_setup())
 	map_layout <- trawl_layout()
@@ -62,7 +141,22 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 		}else{
 			map(add=TRUE, fill=TRUE, col="lightgray")
 		}
-
+		
+		if(add_lisa){
+			pc <- cePCH(tr)
+			pc[[1]][pc[[1]]==1] <- NA
+			
+			sigRichInd <- mapDat[reg==tr, lI_pvalue_rich<0.05]
+			hotspotIndRich <- sigRichInd
+			
+			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col="white", lwd=4, cex=1.2)]
+			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='white', pch=20, cex=1.5)]
+			
+			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col=pc[[2]], cex=1.2)]
+			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='white', pch=20, cex=1)]
+			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='black', pch=20, cex=0.7)]
+		}
+		
 	
 		zl <- range(values(z)*10, na.rm=TRUE)
 		switch(tr,
