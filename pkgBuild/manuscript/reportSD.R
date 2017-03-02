@@ -241,22 +241,22 @@ for(r in 1:length(ureg)){
 
 # par(mfrow=c(3,3));mapDat[,j={plot(depth, uCol);mtext(reg,side=3,line=0.5,font=2)},by='reg'] # no relationship between depth and number of species that had a colonization event involving the stratum, nor, as shown by switch uCol to uExt, between depth and extinction
 #' 
-#' ####Figure 8. Unique Colonization vs Richness
-#+ colVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 8.** The number of species that ever had a regional colonization event involving that site vs long-term average of each site's richness."
+#' ####Figure 8. Total Colonization vs Richness
+#+ colVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 8.** The total number of regional colonizations that involved a site vs long-term average of the site's richness."
 par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
-		plot(avgRich, uCol)
+		plot(avgRich, totCol)
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
 #' 
-#' ####Figure 9.  Unique Extinction vs Richness
-#+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 9.** The number of species that ever had a regional extinction event involving that site vs long-term average of each site's richness."
+#' ####Figure 9.  Total Extinction vs Richness
+#+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 9.** The total number of regional extinctions that involved a site vs long-term average of the site's richness."
 par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
 	mapDat[reg==ureg[r],j={
-		plot(avgRich, uExt)
+		plot(avgRich, totExt)
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
