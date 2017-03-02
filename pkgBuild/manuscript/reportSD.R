@@ -262,46 +262,46 @@ for(r in 1:length(ureg)){
 }
 
 #' 
-#' ####Figure 10. Unique Colonization vs Unique Extinction
-#+ u-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 10.** Numbers of colonizations versus extinctions at each site. Species were only counted once per site (even if that species colonized or went extinct from the region multiple times, each time involving the site). Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
-eval(figure_setup())
-par(mfrow=c(3,3), mar=c(2.15,2.15,1.15,0.5), cex=1, mgp=c(1,0.25,0), tcl=-0.15, ps=10)
-for(r in 1:length(ureg)){
-	mapDat[reg==ureg[r],j={
-		sigColInd <- lI_pvalue_uCol<0.05
-		sigExtInd <- lI_pvalue_uExt<0.05
-		muCol <- mean(uCol)
-		muExt <- mean(uExt)
-		hotspotIndCol <- sigColInd #& (totCol > muCol)
-		hotspotIndExt <- sigExtInd #& (totExt > muExt)
-		both <- hotspotIndExt&hotspotIndCol
-		neither <- !hotspotIndExt&!hotspotIndCol
-		
-		cols <- vector("character", length(hotspotIndCol))
-		cols[hotspotIndCol] <- "blue"
-		cols[hotspotIndExt] <- "red"
-		cols[both] <- "purple"
-		cols[neither] <- "black"
-		
-		pchs <- vector("integer", length(hotspotIndCol))
-		pchs[hotspotIndCol] <- 3
-		pchs[hotspotIndExt] <- 4
-		pchs[both] <- 5
-		pchs[neither] <- 1
-		
-		# print(all(hotspotIndCol | hotspotIndExt | both | neither))
-		
-		# pchs <- rep(21, length(hotspotIndExt))
-		# pchs[!neither] <- 19
-		
-		plot(uExt, uCol, col=cols, pch=pchs, cex=1.2)
-		mtext(pretty_reg[ureg[r]],side=3,line=0.01,font=2)
-		
-		sigRichInd <- lI_pvalue_rich<0.05
-		hotspotIndRich <- sigRichInd
-		points(uExt[hotspotIndRich], uCol[hotspotIndRich], col='gray', pch=20, cex=0.7)
-	}]
-}
+# #' ####Figure 10. Unique Colonization vs Unique Extinction
+# #+ u-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 10.** Numbers of colonizations versus extinctions at each site. Species were only counted once per site (even if that species colonized or went extinct from the region multiple times, each time involving the site). Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
+# eval(figure_setup())
+# par(mfrow=c(3,3), mar=c(2.15,2.15,1.15,0.5), cex=1, mgp=c(1,0.25,0), tcl=-0.15, ps=10)
+# for(r in 1:length(ureg)){
+# 	mapDat[reg==ureg[r],j={
+# 		sigColInd <- lI_pvalue_uCol<0.05
+# 		sigExtInd <- lI_pvalue_uExt<0.05
+# 		muCol <- mean(uCol)
+# 		muExt <- mean(uExt)
+# 		hotspotIndCol <- sigColInd #& (totCol > muCol)
+# 		hotspotIndExt <- sigExtInd #& (totExt > muExt)
+# 		both <- hotspotIndExt&hotspotIndCol
+# 		neither <- !hotspotIndExt&!hotspotIndCol
+#
+# 		cols <- vector("character", length(hotspotIndCol))
+# 		cols[hotspotIndCol] <- "blue"
+# 		cols[hotspotIndExt] <- "red"
+# 		cols[both] <- "purple"
+# 		cols[neither] <- "black"
+#
+# 		pchs <- vector("integer", length(hotspotIndCol))
+# 		pchs[hotspotIndCol] <- 3
+# 		pchs[hotspotIndExt] <- 4
+# 		pchs[both] <- 5
+# 		pchs[neither] <- 1
+#
+# 		# print(all(hotspotIndCol | hotspotIndExt | both | neither))
+#
+# 		# pchs <- rep(21, length(hotspotIndExt))
+# 		# pchs[!neither] <- 19
+#
+# 		plot(uExt, uCol, col=cols, pch=pchs, cex=1.2)
+# 		mtext(pretty_reg[ureg[r]],side=3,line=0.01,font=2)
+#
+# 		sigRichInd <- lI_pvalue_rich<0.05
+# 		hotspotIndRich <- sigRichInd
+# 		points(uExt[hotspotIndRich], uCol[hotspotIndRich], col='gray', pch=20, cex=0.7)
+# 	}]
+# }
 #' ####Figure 10b. Total Colonization vs Total Extinction
 #+ tot-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 10b.** Total numbers of colonizations versus extinctions at each site. Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
 eval(figure_setup())
