@@ -161,10 +161,10 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 			sigRichInd <- mapDat[reg==tr, lI_pvalue_rich<0.05]
 			hotspotIndRich <- sigRichInd
 			
-			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col="white", lwd=4, cex=1.2)]
+			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col="white", lwd=3, cex=1.2)]
 			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='white', pch=20, cex=1.5)]
 			
-			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col=pc[[2]], cex=1.2)]
+			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col=pc[[2]], cex=1.2, lwd=1)]
 			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='white', pch=20, cex=1)]
 			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='black', pch=20, cex=0.7)]
 		}
