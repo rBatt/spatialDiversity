@@ -88,7 +88,7 @@ cePCH <- function(region, ce_type=c("tot","u","original")){
 # }
 
 # ---- Colonization Rate ----
-ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt"), add_lisa=TRUE, ce_type=c("tot","u","original")){
+ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt"), add_lisa=TRUE, ce_type=c("tot","u","original"), main=NULL){
 	ce <- match.arg(ce)
 	eval(figure_setup())
 	map_layout <- trawl_layout()
@@ -198,15 +198,21 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 			newf = legend("topright", legend="F", bty='n', text.font=2, inset=c(-0.01,-0.05), cex=1.25)
 		)
 	}
-	if(ce=="colonization"){
-		mtext(bquote(Colonization~Rate~(C[w]~~decade^-1)), side=3, outer=TRUE, font=2, line=-0.3)
-	}else if(ce=="extinction"){
-		mtext(bquote(Extinction~Rate~(E[w]~~decade^-1)), side=3, outer=TRUE, font=2, line=-0.3)
-	}else if(ce=="richness"){
-		mtext(bquote(Observed~Richness), side=3, outer=TRUE, font=2, line=-0.3)
+	
+	if(!is.null(main)){
+		mtext(main, side=3, outer=TRUE, font=2, line=-0.3)
 	}else{
-		mtext(ce, side=3, outer=TRUE, font=2, line=-0.3)
+		if(ce=="colonization"){
+			mtext(bquote(Colonization~Rate~(C[w]~~decade^-1)), side=3, outer=TRUE, font=2, line=-0.3)
+		}else if(ce=="extinction"){
+			mtext(bquote(Extinction~Rate~(E[w]~~decade^-1)), side=3, outer=TRUE, font=2, line=-0.3)
+		}else if(ce=="richness"){
+			mtext(bquote(Observed~Richness), side=3, outer=TRUE, font=2, line=-0.3)
+		}else{
+			mtext(ce, side=3, outer=TRUE, font=2, line=-0.3)
+		}
 	}
+
 	mtext(bquote(Longitude~(phantom()*degree*E)), side=1, line=0.15, outer=TRUE)
 	mtext(bquote(Latitude~(phantom()*degree*N)), side=2, line=-0.4, outer=TRUE)
 	invisible(NULL)
