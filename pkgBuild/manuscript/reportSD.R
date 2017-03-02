@@ -135,7 +135,7 @@ ceRate_map(ce="totCol")
 # #+ uext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3b.** Maps of the number of unique species with regional colonizations involving each site."
 # ceRate_map(ce="uExt")
 #'   
-#' ####Figure 3c. Toal Extinction map
+#' ####Figure 3c. Total Extinction map
 #+ totext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3c.** Maps of the total number of regional extinctions involving each site."
 ceRate_map(ce="totExt")
 #' 
