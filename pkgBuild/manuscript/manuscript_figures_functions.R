@@ -92,7 +92,7 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 	ce <- match.arg(ce)
 	eval(figure_setup())
 	map_layout <- trawl_layout()
-	par(mar=c(0.9,0.9,0.25,0.25), mgp=c(0.5,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.85,0.6,1,0.1))
+	par(mar=c(0.9,0.9,0.25,0.25), mgp=c(0.5,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.95,0.7,1,0.1))
 	layout(map_layout)
 	
 	ce_type <- match.arg(ce_type) 
