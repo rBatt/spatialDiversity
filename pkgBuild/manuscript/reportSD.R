@@ -72,6 +72,7 @@ o_f <- paste(doc_type, "document", sep="_")
 # 	clean = TRUE
 # )
 
+
 Sys.setenv(PATH=paste0("/Library/TeX/texbin:",Sys.getenv("PATH")))
 
 opts_chunk$set(
@@ -113,7 +114,7 @@ ureg <- mapDat[,unique(reg)]
 #' ###Heat Maps
 #' ####Figure 1. Richness map
 #+ rich-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 1.** Maps of long-term averages of richness at each site for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Richness values were smoothed using a Gaussian kernel smoother. The smoothed richness value is indicated by the color bars in each panel; colors are scaled independently for each region."
-ceRate_map(ce="richness")
+ceRate_map(ce="richness", main="Average Richness")
 #' 
 # #' ####Figure 2. Colonization map
 # #+ col-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2.** Maps of long-term averages of colonizations per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of colonization rate were smoothed using a Gaussian kernel smoother. The smoothed colonization rate is indicated by the color bars in each panel; colors are scaled independently for each region."
@@ -125,7 +126,7 @@ ceRate_map(ce="richness")
 #' 
 #' ####Figure 2c. Total Colonization map
 #+ totcol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2c.** Maps of total colonizations per site."
-ceRate_map(ce="totCol")
+ceRate_map(ce="totCol", main="Total Colonizations")
 #'   
 # #' ####Figure 3. Extinction map
 # #+ ext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3.** Maps of long-term averages of extinctions per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of extinction rate were smoothed using a Gaussian kernel smoother. The smoothed extinction rate is indicated by the color bars in each panel; colors are scaled independently for each region."
@@ -137,7 +138,7 @@ ceRate_map(ce="totCol")
 #'   
 #' ####Figure 3c. Total Extinction map
 #+ totext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3c.** Maps of the total number of regional extinctions involving each site."
-ceRate_map(ce="totExt")
+ceRate_map(ce="totExt", main="Total Extinctions")
 #' 
 #' Hotspots can be seen in most regions. Newfoundland also has high values around its edge (as opposed to interior), it seems. NEUS and Gmex show very strong hotspots, and other locations tend to be much much lower. Other regions show more of a continuum.  
 #'     
