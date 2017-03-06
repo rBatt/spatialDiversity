@@ -36,8 +36,8 @@ make_mapDat <- function(p){
 		get_uniqueCE <- function(x){
 			reg_name <- x$rd[,unique(reg)]
 			t_c <- x$colonization
-			n_uSppPerStrat_exts <- t_c$ext_dt[, list(uExt=eval(n_uSppPerStrat_expr)), by=c("stratum")]
-			n_uSppPerStrat_cols <- t_c$col_dt[, list(uCol=eval(n_uSppPerStrat_expr)), by=c("stratum")]
+			n_uSppPerStrat_exts <- t_c$ext_dt[, list(uExt=as.numeric(eval(n_uSppPerStrat_expr))), by=c("stratum")]
+			n_uSppPerStrat_cols <- t_c$col_dt[, list(uCol=as.numeric(eval(n_uSppPerStrat_expr))), by=c("stratum")]
 			data.table(reg=reg_name, merge(n_uSppPerStrat_exts,n_uSppPerStrat_cols, all=TRUE))
 		}
 		n_uSppPerStrat_ce <- get_uniqueCE(p[[r]]) # n_uSppPerStrat_ce <- rbindlist(lapply(p, get_uniqueCE))
@@ -47,8 +47,8 @@ make_mapDat <- function(p){
 		get_totalCE <- function(x){
 			reg_name <- x$rd[,unique(reg)]
 			t_c <- x$colonization
-			n_totSppPerStrat_exts <- t_c$ext_dt[, list(totExt=eval(n_totSppPerStrat_expr)), by=c("stratum")]
-			n_totSppPerStrat_cols <- t_c$col_dt[, list(totCol=eval(n_totSppPerStrat_expr)), by=c("stratum")]
+			n_totSppPerStrat_exts <- t_c$ext_dt[, list(totExt=as.numeric(eval(n_totSppPerStrat_expr))), by=c("stratum")]
+			n_totSppPerStrat_cols <- t_c$col_dt[, list(totCol=as.numeric(eval(n_totSppPerStrat_expr))), by=c("stratum")]
 			data.table(reg=reg_name, merge(n_totSppPerStrat_exts,n_totSppPerStrat_cols, all=TRUE))
 		}
 		n_totSppPerStrat_ce <- get_totalCE(p[[r]])
@@ -65,6 +65,12 @@ make_mapDat <- function(p){
 	# mapDim <- mapDat[,list(r_lon=diff(range(lon)),r_lat=diff(range(lat))),by="reg"]
 	# mapDim[,c("lon_scale","lat_scale"):=list(r_lon/min(r_lon), r_lat/min(r_lat))]
 	# mapDim[,ll_ratio:=r_lon/r_lat]
+	
+	# put u/tot values in units of "per year" to control for some sites not being sampled in all years
+	mapDat[,uCol:=uCol/yrs_sampled,by="reg"]
+	mapDat[,uExt:=uExt/yrs_sampled,by="reg"]
+	mapDat[,totCol:=totCol/yrs_sampled,by="reg"]
+	mapDat[,totExt:=totExt/yrs_sampled,by="reg"]
 	
 	return(mapDat)
 }
