@@ -338,7 +338,15 @@ for(r in 1:length(ureg)){
 		# pchs <- rep(21, length(hotspotIndExt))
 		# pchs[!neither] <- 19
 		
-		plot(totExt, totCol, col=cols, pch=pchs, cex=1.2)
+		ylim <- range(totCol, na.rm=TRUE)
+		xlim <- range(totExt, na.rm=TRUE)
+		plot(totExt[pchs==1], totCol[pchs==1], 
+			ylim=ylim, xlim=xlim, pch=pchs[pchs==1], cols=cols[pchs==1], cex=1.2,
+			xlab="Extinctions", ylab="Colonizations"
+		)
+		abline(v=muExt, lty='dashed')
+		abline(h=muCol, lty='dashed')
+		points(totExt[pchs!=1], totCol[pchs!=1], col=cols[pchs!=1], pch=pchs[pchs!=1], cex=1.2)
 		mtext(pretty_reg[ureg[r]],side=3,line=0.01,font=2)
 		
 		sigRichInd <- lI_pvalue_rich<0.05
