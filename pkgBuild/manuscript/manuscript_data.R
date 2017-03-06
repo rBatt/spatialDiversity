@@ -1,7 +1,7 @@
 
 library(trawlData)
 library(trawlDiversity)
-library(spatialDiversity)
+# library(spatialDiversity)
 library(rbLib)
 
 setwd("~/Documents/School&Work/pinskyPost/spatialDiversity")
@@ -46,7 +46,7 @@ for(r in 1:n_reg){
 #
 # # end new
 
-mapDat <- spatialDiversity::make_mapDat(small_p)
+mapDat <- make_mapDat(small_p) # spatialDiversity::
 
 # # start new
 # mapDat2 <- merge(mapDat, n_uSppPerStrat_ce)
