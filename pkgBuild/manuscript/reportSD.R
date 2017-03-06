@@ -142,6 +142,7 @@ ceRate_map(ce="totExt", main="Total Extinctions")
 #' 
 #' Hotspots can be seen in most regions. Newfoundland also has high values around its edge (as opposed to interior), it seems. NEUS and Gmex show very strong hotspots, and other locations tend to be much much lower. Other regions show more of a continuum.  
 #'     
+#' ####Relative intensities of col/ ext in maps
 #+ col-ext-intensities, echo=TRUE,  cache=FALSE
 sppp <- function(...){spatstat::Smooth(spatstat::ppp(...), hmax=1)}
 map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRich","uCol","uExt","totCol","totExt")){
@@ -153,17 +154,17 @@ rel_col_ext_rate <- mapDat[,j={
 	map_smooth_rich <- map_smooth(.SD, "avgRich")
 	mark_range_rich <- range(map_smooth_rich, na.rm=TRUE)#*10
 	
-	map_smooth_col <- map_smooth(.SD, "n_spp_col_weighted")
-	mark_range_col <- range(map_smooth_col, na.rm=TRUE)*10
-	
-	map_smooth_ext <- map_smooth(.SD, "n_spp_ext_weighted")
-	mark_range_ext <- range(map_smooth_ext, na.rm=TRUE)*10
-	
-	map_smooth_uCol <- map_smooth(.SD, "uCol")
-	mark_range_uCol <- range(map_smooth_uCol, na.rm=TRUE)*10
-	
-	map_smooth_uExt <- map_smooth(.SD, "uExt")
-	mark_range_uExt <- range(map_smooth_uExt, na.rm=TRUE)*10
+	# map_smooth_col <- map_smooth(.SD, "n_spp_col_weighted")
+	# mark_range_col <- range(map_smooth_col, na.rm=TRUE)*10
+	#
+	# map_smooth_ext <- map_smooth(.SD, "n_spp_ext_weighted")
+	# mark_range_ext <- range(map_smooth_ext, na.rm=TRUE)*10
+	#
+	# map_smooth_uCol <- map_smooth(.SD, "uCol")
+	# mark_range_uCol <- range(map_smooth_uCol, na.rm=TRUE)*10
+	#
+	# map_smooth_uExt <- map_smooth(.SD, "uExt")
+	# mark_range_uExt <- range(map_smooth_uExt, na.rm=TRUE)*10
 	
 	map_smooth_totCol <- map_smooth(.SD, "totCol")
 	mark_range_totCol <- range(map_smooth_totCol, na.rm=TRUE)*10
@@ -174,14 +175,14 @@ rel_col_ext_rate <- mapDat[,j={
 	ol <- list(
 		minval_rich=mark_range_rich[1], maxval_rich=mark_range_rich[2], 
 		max_o_min_rich=do.call("/",as.list(rev(mark_range_rich))),
-		minval_col=mark_range_col[1], maxval_col=mark_range_col[2], 
-		max_o_min_col=do.call("/",as.list(rev(mark_range_col))),
-		minval_ext=mark_range_ext[1], maxval_ext=mark_range_ext[2], 
-		max_o_min_ext=do.call("/",as.list(rev(mark_range_ext))),
-		minval_uCol=mark_range_uCol[1], maxval_uCol=mark_range_uCol[2], 
-		max_o_min_uCol=do.call("/",as.list(rev(mark_range_uCol))),
-		minval_uExt=mark_range_uExt[1], maxval_uExt=mark_range_uExt[2], 
-		max_o_min_uExt=do.call("/",as.list(rev(mark_range_uExt))),
+		# minval_col=mark_range_col[1], maxval_col=mark_range_col[2],
+		# max_o_min_col=do.call("/",as.list(rev(mark_range_col))),
+		# minval_ext=mark_range_ext[1], maxval_ext=mark_range_ext[2],
+		# max_o_min_ext=do.call("/",as.list(rev(mark_range_ext))),
+		# minval_uCol=mark_range_uCol[1], maxval_uCol=mark_range_uCol[2],
+		# max_o_min_uCol=do.call("/",as.list(rev(mark_range_uCol))),
+		# minval_uExt=mark_range_uExt[1], maxval_uExt=mark_range_uExt[2],
+		# max_o_min_uExt=do.call("/",as.list(rev(mark_range_uExt))),
 		minval_totCol=mark_range_totCol[1], maxval_totCol=mark_range_totCol[2], 
 		max_o_min_totCol=do.call("/",as.list(rev(mark_range_totCol))),
 		minval_totExt=mark_range_totExt[1], maxval_totExt=mark_range_totExt[2], 
@@ -189,11 +190,11 @@ rel_col_ext_rate <- mapDat[,j={
 	)
 	lapply(ol, function(x)if(is.numeric(x)){signif(x,3)}else{x})
 },by=c("reg"), .SDcols=names(mapDat)]
-# #+ col-ext-intensities-table, echo=FALSE
-# kable(
-# 	rbind(rel_col_ext_rate, rel_col_ext_rate[,lapply(.SD, median)][,reg:="MEDIAN"]),
-# 	caption="The colonization and extinction intensity range and max/min ratio, and median among regions. Useful for assessing how big of a difference there is between red and blue for each region."
-# )
+#+ col-ext-intensities-table, echo=FALSE
+kable(
+	rbind(rel_col_ext_rate, rel_col_ext_rate[,lapply(.SD, median)][,reg:="MEDIAN"]),
+	caption="The colonization and extinction intensity range and max/min ratio, and median among regions. Useful for assessing how big of a difference there is between red and blue for each region."
+)
 #'   
 #' ###Neighborhoods and Local Moran's I
 #' ####Figure 4. Richness neighborhood
