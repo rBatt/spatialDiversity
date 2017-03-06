@@ -142,7 +142,7 @@ ceRate_map(ce="totExt", main="Total Extinctions")
 #' 
 #' Hotspots can be seen in most regions. Newfoundland also has high values around its edge (as opposed to interior), it seems. NEUS and Gmex show very strong hotspots, and other locations tend to be much much lower. Other regions show more of a continuum.  
 #'     
-#' ####Relative intensities of col/ ext in maps
+#' ####Table. Relative intensities of col/ ext in maps
 #+ col-ext-intensities, echo=TRUE,  cache=FALSE
 sppp <- function(...){spatstat::Smooth(spatstat::ppp(...), hmax=1)}
 map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRich","uCol","uExt","totCol","totExt")){
@@ -405,3 +405,36 @@ kable(nLSA)
 #'   
 #' ***  
 #' 
+#' ##Exploring 'Endemism' Patterns
+#' One of the hypotheses was that sites with higher richness might have higher local colonizations and extinctions. If the richness at the site is also endemic -- meaning the species occurs at no other sites in the region -- then any local colonization or extinction of that endemic species is also a regional colonization or extinction. Therefore, in addition to knowing whether or not richness is correlated with colonization or extinction, we should also determine whether there is a degree of endemism at any of these sites. Otherwise, the simple proposed mechanism explaining relationships between richness and col/ext does not apply.
+#+ endemism-calc, echo=TRUE
+#' For each site in a region, how many of that site's occupants tend to occupy other sites at the same time?
+endo <- trawlDiversity::data_all[reg!='wcann' & K==1,j={
+	
+	totStrat <- length(unique(stratum))
+	list(stratum=stratum, totStrat=totStrat)
+	
+},by=c('reg','year','spp')]
+endo[,sum(totStrat==1),by=c('reg','spp')]
+
+
+#' Number of species that are only present in 1 site per year per region: `r endo[,max(totStrat),by=c('reg','spp')][,sum(V1==1)]`  
+#' A list of the species that appear in only 1 site at a time:  
+kable(endo[,max(totStrat),by=c('reg','spp')][V1==1])
+#' Most of these examples are from the NEUS and GMEX. The one from SA is the Gaftopsail Sea Catfish. It's not super rare at all. In the full data set it was found in multiple strata in the same year, just not necessarily for K==1.  
+#'   
+#' Here's some examples of what I looked at from the NEUS  
+sppImg("Syacium papillosum") 
+data_all[spp=="Syacium papillosum", plot(lon, lat, col=as.factor(reg))]; map(add=TRUE)
+#' This species is only ever found in 1 site at a time in NEUS. According to fish base (http://www.aquamaps.org/receive.php?type_of_map=regular), it should be fairly rare north of Capte Hatteras
+#'   
+sppImg("Decapterus punctatus")
+data_all[spp=="Decapterus punctatus", plot(lon, lat, col=as.factor(reg))]; map(add=TRUE) 
+#' Example of a species that only ever appeared in one site at a time (in a region). However, this strikes me as odd because the species is apparently more widely distributed throughout the NEUS than this map shows, according to fishbase (http://www.aquamaps.org/receive.php?type_of_map=regular). It's also a pelagic, so initially I just thought this was a sampling issue.
+#'   
+#' Now to examine the question from a site perspective.
+e1 <- endo[,list(avg_totStrat=mean(totStrat)),by=c("reg","year","stratum")]
+e2 <- e1[,list(avg_totStrat=mean(avg_totStrat)),by=c("reg","stratum")]
+par(mfrow=c(3,3));merge(mapDat, e2)[,j={hist(avg_totStrat, main=reg[1]);NULL}, by='reg']
+
+
