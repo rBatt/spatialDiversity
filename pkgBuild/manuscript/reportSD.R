@@ -151,7 +151,7 @@ map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRi
 }
 rel_col_ext_rate <- mapDat[,j={
 	map_smooth_rich <- map_smooth(.SD, "avgRich")
-	mark_range_rich <- range(map_smooth_rich, na.rm=TRUE)*10
+	mark_range_rich <- range(map_smooth_rich, na.rm=TRUE)#*10
 	
 	map_smooth_col <- map_smooth(.SD, "n_spp_col_weighted")
 	mark_range_col <- range(map_smooth_col, na.rm=TRUE)*10
