@@ -373,7 +373,8 @@ for(r in 1:length(ureg)){
 #' ***  
 #' 
 #+ tbl-fracColExtInHotspot
-fracHotspot <- mapDat[,j={
+nLSA <- mapDat[,j={
+	sigRichInd <- lI_pvalue_rich<0.05
 	sigColInd <- lI_pvalue_totCol<0.05
 	sigExtInd <- lI_pvalue_totExt<0.05
 	muCol <- mean(totCol)
@@ -382,13 +383,22 @@ fracHotspot <- mapDat[,j={
 	hotspotIndExt <- sigExtInd & (totExt > muExt)
 	
 	list(
-		hotspotFracCol=sum(totCol[hotspotIndCol])/sum(totCol), 
-		hotspotFracColNSPots=sum(hotspotIndCol)/length(stratum),
-		hotspotFracExt=sum(totExt[hotspotIndExt])/sum(totExt), 
-		hotspotFracExtNSPots=sum(hotspotIndExt)/length(stratum)
+		nSites = length(unique(stratum)),
+		
+		nRichLSA = sum(sigRichInd),
+		nRichHotspot = sum(sigRichInd & (avgRich > mean(avgRich))),
+		nRichColdspot = sum(sigRichInd & (avgRich < mean(avgRich))),
+		
+		nColLSA = sum(sigColInd),
+		nColHotspot = sum(hotspotIndCol),
+		nColColdspot = sum(sigColInd & (totCol < muCol)),
+		
+		nExtLSA = sum(sigExtInd),
+		nExtHotspot = sum(hotspotIndExt),
+		nExtExtdspot = sum(sigExtInd & (totExt < muExt))
 	)
 },by=c("reg")]
-kable(fracHotspot)
+kable(nLSA)
 #'   
 #' \FloatBarrier  
 #'   
