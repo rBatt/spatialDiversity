@@ -169,7 +169,7 @@ ceRate_map <- function(ce=c("colonization","extinction","richness","uCol","uExt"
 			mapDat[reg==tr,points(lon[hotspotIndRich], lat[hotspotIndRich], col='black', pch=20, cex=0.7)]
 		}
 		
-		if(ce %in% c("colonization","extinction")){ # rescale these rates to be "per decade"
+		if(ce != "richness"){ # rescale these rates to be "per decade"
 			zl <- range(values(z)*10, na.rm=TRUE)
 		}else{
 			zl <- range(values(z), na.rm=TRUE)
