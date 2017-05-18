@@ -25,6 +25,9 @@ for(r in 1:n_reg){
 	small_p[[r]] <- trawlDiversity::process_obsRich(data_all2[reg==t_reg], msom_yrs=u_dat[reg==t_reg,msom_years])
 }
 
+col_ext_dt <- lapply(small_p, function(x)data.table(reg=x$rd[,unique(reg)], x$colonization$col_ext_dt))
+col_ext_dt <- rbindlist(col_ext_dt)
+
 # # start new
 # n_uSppPerStrat_expr <- bquote(.SD[(col_logic),length(unique(spp))])
 # get_uniqueCE <- function(x){
@@ -127,5 +130,7 @@ for(ce in 1:length(lac_val)){
 save(mapDat, file="data/mapDat.RData")
 save(mapOwin, file="data/mapOwin.RData")
 save(localAC, file="data/localAC.RData")
+save(data_all2, file="data/data_all2.RData")
+save(col_ext_dt, file="data/col_ext_dt.RData")
 
 
