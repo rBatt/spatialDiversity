@@ -252,6 +252,21 @@ for(r in 1:length(ureg)){
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
+#+ colVrich-regression
+#' ####Colonization - Richness Regression
+colRich_regs <- list()
+ureg <- mapDat[,unique(reg)]
+for(r in 1:length(ureg)){
+	colRich_regs[[r]] <- summary(lm(totCol~avgRich, data=mapDat[reg==ureg[r]]))
+}
+names(colRich_regs) <- ureg
+mod_sum_funct <- function(x){
+	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
+}
+colRich_mod_sum <- lapply(colRich_regs, mod_sum_funct)
+colRich_mod_sum <- cbind(reg=names(colRich_regs), rbindlist(colRich_mod_sum))
+colRich_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
+kable(colRich_mod_sum, caption="Table. Statistics for totCol~avgRich linear regression.")
 #' 
 #' ####Figure 9.  Total Extinction vs Richness
 #+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 9.** The total number of regional extinctions that involved a site vs long-term average of the site's richness."
@@ -262,6 +277,21 @@ for(r in 1:length(ureg)){
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
+#' ####Extinction - Richness Regression
+#+ extVrich-regression
+extRich_regs <- list()
+ureg <- mapDat[,unique(reg)]
+for(r in 1:length(ureg)){
+	extRich_regs[[r]] <- summary(lm(totExt~avgRich, data=mapDat[reg==ureg[r]]))
+}
+names(extRich_regs) <- ureg
+mod_sum_funct <- function(x){
+	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
+}
+extRich_mod_sum <- lapply(extRich_regs, mod_sum_funct)
+extRich_mod_sum <- cbind(reg=names(extRich_regs), rbindlist(extRich_mod_sum))
+extRich_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
+kable(extRich_mod_sum, caption="Table. Statistics for totExt~avgRich linear regression.")
 
 #' 
 # #' ####Figure 10. Unique Colonization vs Unique Extinction
@@ -351,7 +381,22 @@ for(r in 1:length(ureg)){
 		points(totExt[hotspotIndRich], totCol[hotspotIndRich], col='gray', pch=20, cex=0.7)
 	}]
 }
-mapDat[,]
+
+#+ col-ext-regression-table
+colExt_regs <- list()
+ureg <- mapDat[,unique(reg)]
+for(r in 1:length(ureg)){
+	colExt_regs[[r]] <- summary(lm(totCol~totExt, data=mapDat[reg==ureg[r]]))
+}
+names(colExt_regs) <- ureg
+mod_sum_funct <- function(x){
+	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
+}
+colExt_mod_sum <- lapply(colExt_regs, mod_sum_funct)
+colExt_mod_sum <- cbind(reg=names(colExt_regs), rbindlist(colExt_mod_sum))
+colExt_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
+kable(colExt_mod_sum, caption="Table. Statistics for totCol~totExt linear regression.")
+
 #' 
 #' ####Figure 11. Total Colonization vs Unique Colonization
 #+ totcolVucol, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 11.** The total number of colonization events at each site vs the number of species that ever had a colonization event involving the site."
@@ -442,5 +487,177 @@ data_all[spp=="Decapterus punctatus", plot(lon, lat, col=as.factor(reg))]; map(a
 e1 <- endo[,list(avg_totStrat=mean(totStrat)),by=c("reg","year","stratum")]
 e2 <- e1[,list(avg_totStrat=mean(avg_totStrat)),by=c("reg","stratum")]
 par(mfrow=c(3,3));merge(mapDat, e2)[,j={hist(avg_totStrat, main=reg[1]);NULL}, by='reg']
+
+
+# ===========
+# = testing =
+# ===========
+betaDist <- function(Y){
+	ade4::dist.binary(Y, method=1)^2
+}
+getY_col <- function(){
+	
+	return(Y)
+}
+
+
+# ---- cluster sites ----
+colClustSite <- spatialDiversity::mapDat[lI_pvalue_totCol < 0.05 & totCol>mean(totCol), stratum, by='reg']
+extClustSite <- spatialDiversity::mapDat[lI_pvalue_totExt < 0.05 & totExt>mean(totExt), stratum, by='reg']
+
+colSppYear <- col_ext_dt[col==1, list(spp, year), by='reg']
+extSppYear <- col_ext_dt[ext==1, list(spp, year), by='reg']
+
+subCols <- expression(list(reg, year, spp, stratum, K, Kmax, lon, lat, wtcpue, btemp, depth))
+
+colDat <- data_all2[colSppYear, on=c('reg','spp','year')][colClustSite, on=c("reg", "stratum"), eval(subCols)] #[!is.na(lon)]
+extDat <- data_all2[extSppYear, on=c('reg','spp','year')][extClustSite, on=c("reg", "stratum"), eval(subCols)]#[!is.na(lon)]
+
+strat2ll <- function(stratum){
+	ll_split <- strsplit(stratum, " ")
+	Lon <- as.numeric(sapply(ll_split, function(x)x[1]))
+	Lat <- as.numeric(sapply(ll_split, function(x)x[2]))
+	list(lon=Lon, lat=Lat)
+}
+
+# lay_mat0 <- as.matrix(raster::disaggregate(raster::raster(matrix(1:9, nrow=3)), fact=4))
+# lay_mat <- lay_mat0
+# for(r in 1:length(ur)){
+# 	val <- 1 + 2*(r-1)
+# 	ind <- lay_mat0==r
+# 	lay_mat[ind] <- val
+# 	nr <- sqrt(sum(ind))
+# 	slm <- (lay_mat[ind])
+# 	tm <- matrix(lay_mat[ind], nrow=nr)
+# 	diag(tm) <- c(rep(val+1, nr/2), rep(val, nr/2))
+# 	lay_mat[ind] <- tm
+# }
+geoDist <- function(x, y){
+	if(!is.null(nrow(x))){
+		x <- as.matrix(x)
+	}
+	if(!is.null(nrow(y))){
+		y <- as.matrix(y)
+	}
+	
+	x180 <- x < -180
+	x[x180] <- x[x180] + 360
+	y180 <- y < -180
+	y[y180] <- y[y180] + 360
+	
+	geosphere::distVincentyEllipsoid(x, y)/1E3
+	
+}
+dendroMap <- function(Dat){
+	ur <- Dat[,unique(reg)]
+	mat <- structure(vector('list', length(ur)), .Names=ur)
+	beta <- structure(vector('list', length(ur)), .Names=ur)
+	geo <- structure(vector('list', length(ur)), .Names=ur)
+	for(r in 1:length(ur)){
+		tdt <- Dat[reg==ur[r],list(spp=unique(spp), pres=1),by=c('reg','stratum')]
+		tmat <- reshape2::acast(tdt, stratum~spp, value.var='pres')
+		tmat[is.na(tmat)] <- 0
+		mat[[ur[r]]] <- tmat
+	
+		if(nrow(tmat) > 1){
+			bD <- betaDist(tmat)
+			hcbd <- hclust(bD); 
+			clusts <- cutree(hcbd, h=0.7)
+		
+			col_opts <- viridis::viridis(length(unique(clusts)))
+			nameCol_key <- data.table(stratum=hcbd$labels, ord=hcbd$order, short=LETTERS[1:nrow(tmat)], clusts=clusts, col=col_opts[clusts])
+		
+			strat_names <- nameCol_key[,stratum] #hcbd$labels[hcbd$order] #rownames(tmat)
+			strat_names_short <- structure(nameCol_key[,short], .Names=nameCol_key[,stratum])
+		
+			clustCol <- nameCol_key[,unique(col)[unique(clusts[ord])]] #nameCol_key[,unique(col)] #viridis::viridis(length(unique(clusts)))
+			stratCol <- nameCol_key[,col] #clustCol[clusts]
+			names(stratCol) <- nameCol_key[,stratum] #strat_names
+		
+			hcbd$labels <- nameCol_key[,short]#[order(hcbd$order)] #strat_names_short[order(hcbd$order)]
+		}else{
+			if(nrow(tmat)>0){
+				strat_names <- rownames(tmat)
+				strat_names_short <- structure(LETTERS[1:nrow(tmat)], .Names=strat_names)
+				clustCol <- viridis::viridis(1)
+				stratCol <- clustCol
+				names(stratCol) <- strat_names
+			}
+		}
+
+		plot(mapOwin[[ur[r]]], main='')
+		if(nrow(tmat)>0){
+			ll <- strat2ll(strat_names)
+			text(x=(ll$lon), y=(ll$lat), strat_names_short, col=stratCol[strat_names])
+			geo <- geoDist(ll$lon, ll$lat)
+		}
+	
+		if(nrow(tmat) > 1){
+			plot(as.dendrogram(hcbd), leaflab='perpendicular')
+			if(sum(hcbd$height < 0.7)>1 & sum(hcbd$height > 0.7)>1){
+				rect.hclust(hcbd, h=0.7, border=clustCol)
+			}
+		}else{
+			plot(1,1, type='n', xlab='', ylab='', xaxt='n', yaxt='n', bty='l')
+		}
+	}
+	invisible(NULL)
+}
+
+par(mfrow=c(9,2), mar=c(1,1,0.25,0.25), cex=1, ps=8)
+dendroMap(colDat)
+
+par(mfrow=c(9,2), mar=c(1,1,0.25,0.25), cex=1, ps=8)
+dendroMap(extDat)
+
+# ur <- colDat[,unique(reg)]
+# for(r in 1:length(ur)){
+# 	tdt <- colDat[reg==ur[r],list(spp=unique(spp), pres=1),by=c('reg','stratum')]
+# 	tmat <- reshape2::acast(tdt, stratum~spp, value.var='pres')
+# 	tmat[is.na(tmat)] <- 0
+#
+# 	if(nrow(tmat) > 1){
+# 		bD <- betaDist(tmat)
+# 		hcbd <- hclust(bD);
+# 		clusts <- cutree(hcbd, h=0.7)
+#
+# 		col_opts <- viridis::viridis(length(unique(clusts)))
+# 		nameCol_key <- data.table(stratum=hcbd$labels, ord=hcbd$order, short=LETTERS[1:nrow(tmat)], clusts=clusts, col=col_opts[clusts])
+#
+# 		strat_names <- nameCol_key[,stratum] #hcbd$labels[hcbd$order] #rownames(tmat)
+# 		strat_names_short <- structure(nameCol_key[,short], .Names=nameCol_key[,stratum])
+#
+# 		clustCol <- nameCol_key[,unique(col)[unique(clusts[ord])]] #nameCol_key[,unique(col)] #viridis::viridis(length(unique(clusts)))
+# 		stratCol <- nameCol_key[,col] #clustCol[clusts]
+# 		names(stratCol) <- nameCol_key[,stratum] #strat_names
+#
+# 		hcbd$labels <- nameCol_key[,short]#[order(hcbd$order)] #strat_names_short[order(hcbd$order)]
+# 	}else{
+# 		if(nrow(tmat)>0){
+# 			strat_names <- rownames(tmat)
+# 			strat_names_short <- structure(LETTERS[1:nrow(tmat)], .Names=strat_names)
+# 			clustCol <- viridis::viridis(1)
+# 			stratCol <- clustCol
+# 			names(stratCol) <- strat_names
+# 		}
+# 	}
+#
+# 	plot(mapOwin[[ur[r]]], main='')
+# 	if(nrow(tmat)>0){
+# 		ll <- strat2ll(strat_names)
+# 		text(x=(ll$lon), y=(ll$lat), strat_names_short, col=stratCol[strat_names])
+# 	}
+#
+# 	if(nrow(tmat) > 1){
+# 		plot(as.dendrogram(hcbd), leaflab='perpendicular')
+# 		if(sum(hcbd$height < 0.7)>1 & sum(hcbd$height > 0.7)>1){
+# 			rect.hclust(hcbd, h=0.7, border=clustCol)
+# 		}
+# 	}else{
+# 		plot(1,1, type='n', xlab='', ylab='', xaxt='n', yaxt='n', bty='o')
+# 	}
+# }
+
+
 
 
