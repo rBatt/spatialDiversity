@@ -110,9 +110,8 @@ ureg <- mapDat[,unique(reg)]
 #'   
 #' ***  
 #'   
-#' ##Spatial Clustering of Colonization and Extinction
-#' ###Heat Maps
-#' ####Figure 1. Richness map
+#' #Spatial Clustering of Colonization and Extinction
+#' ##Figure 1. Richness map
 #+ rich-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 1.** Maps of long-term averages of richness at each site for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Richness values were smoothed using a Gaussian kernel smoother. The smoothed richness value is indicated by the color bars in each panel; colors are scaled independently for each region."
 ceRate_map(ce="richness", main="Average Richness")
 #' 
@@ -124,7 +123,7 @@ ceRate_map(ce="richness", main="Average Richness")
 # #+ ucol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2b.** Maps of the number of unique species with regional colonizations involving each site."
 # ceRate_map(ce="uCol")
 #' 
-#' ####Figure 2c. Total Colonization map
+#' ##Figure 2. Total Colonization map
 #+ totcol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2c.** Maps of total colonizations per site."
 ceRate_map(ce="totCol", main="Total Colonizations")
 #'   
@@ -136,13 +135,13 @@ ceRate_map(ce="totCol", main="Total Colonizations")
 # #+ uext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3b.** Maps of the number of unique species with regional colonizations involving each site."
 # ceRate_map(ce="uExt")
 #'   
-#' ####Figure 3c. Total Extinction map
+#' ##Figure 3. Total Extinction map
 #+ totext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3c.** Maps of the total number of regional extinctions involving each site."
 ceRate_map(ce="totExt", main="Total Extinctions")
 #' 
 #' Hotspots can be seen in most regions. Newfoundland also has high values around its edge (as opposed to interior), it seems. NEUS and Gmex show very strong hotspots, and other locations tend to be much much lower. Other regions show more of a continuum.  
 #'     
-#' ####Table. Relative intensities of col/ ext in maps
+#' ##Table. Relative intensities of col/ ext in maps
 #+ col-ext-intensities, echo=TRUE,  cache=FALSE
 sppp <- function(...){spatstat::Smooth(spatstat::ppp(...), hmax=1)}
 map_smooth <- function(X, val=c("n_spp_col_weighted","n_spp_ext_weighted","avgRich","uCol","uExt","totCol","totExt")){
@@ -196,8 +195,8 @@ kable(
 	caption="The colonization and extinction intensity range and max/min ratio, and median among regions. Useful for assessing how big of a difference there is between red and blue for each region."
 )
 #'   
-#' ###Neighborhoods and Local Moran's I
-#' ####Figure 4. Richness neighborhood
+#' #Neighborhoods and Local Moran's I
+#' ##Figure S1. Richness neighborhood
 #+ rich-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 4.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
 nb_moranI(ce="richness")
 #' 
@@ -209,7 +208,7 @@ nb_moranI(ce="richness")
 # #+ ucol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5b.** Connectivity and local spatial autocorrelation of colonization events (each species only counted once per stratum) in each region."
 # nb_moranI(ce="uCol")
 #' 
-#' ####Figure 5c. Total Colonization neighborhood
+#' ##Figure S2. Total Colonization neighborhood
 #+ totcol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5c.** Connectivity and local spatial autocorrelation of colonization events (each species possibly counted more than once per stratum) in each region."
 nb_moranI(ce="totCol")
 #'   
@@ -221,121 +220,17 @@ nb_moranI(ce="totCol")
 # #+ uext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6b.** Connectivity and local spatial autocorrelation of extinction events (each species only counted once per stratum) in each region."
 # nb_moranI(ce="uExt")
 #'   
-#' ####Figure 6c. Total Extinction neighborhood
-#+ totext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6c.** Connectivity and local spatial autocorrelation of extinction events (each species possibly counted more than once per stratum) in each region."
+#' ##Figure S3. Total Extinction neighborhood
+#+ totext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S3.** Connectivity and local spatial autocorrelation of extinction events (each species possibly counted more than once per stratum) in each region."
 nb_moranI(ce="totExt")
 #'   
 #' \FloatBarrier  
 #'   
 #' ***  
 #' 
-#' ###Scatterplots involving colonization, richness, extinction
-#' ####Figure 7. Richness vs Depth
-#+ richVdepth, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 7.** Long-term average of per-site species richness vs the depth (m) of the site. Fitted line is a regression of richness ~ depth + depth^2."
-par(mfrow=c(3,3))
-for(r in 1:length(ureg)){
-	mapDat[reg==ureg[r],j={
-		plot(depth, avgRich);
-		mtext(ureg[r],side=3,line=0.5,font=2);
-		lines(sort(depth),predict(lm(avgRich~depth+I(depth^2),data=.SD[order(depth)])))
-	}]
-}
-
-# par(mfrow=c(3,3));mapDat[,j={plot(depth, uCol);mtext(reg,side=3,line=0.5,font=2)},by='reg'] # no relationship between depth and number of species that had a colonization event involving the stratum, nor, as shown by switch uCol to uExt, between depth and extinction
-#' 
-#' ####Figure 8. Total Colonization vs Richness
-#+ colVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 8.** The total number of regional colonizations that involved a site vs long-term average of the site's richness."
-par(mfrow=c(3,3))
-for(r in 1:length(ureg)){
-	mapDat[reg==ureg[r],j={
-		plot(avgRich, totCol)
-		mtext(ureg[r],side=3,line=0.5,font=2)
-	}]
-}
-#+ colVrich-regression
-#' ####Colonization - Richness Regression
-colRich_regs <- list()
-ureg <- mapDat[,unique(reg)]
-for(r in 1:length(ureg)){
-	colRich_regs[[r]] <- summary(lm(totCol~avgRich, data=mapDat[reg==ureg[r]]))
-}
-names(colRich_regs) <- ureg
-mod_sum_funct <- function(x){
-	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
-}
-colRich_mod_sum <- lapply(colRich_regs, mod_sum_funct)
-colRich_mod_sum <- cbind(reg=names(colRich_regs), rbindlist(colRich_mod_sum))
-colRich_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
-kable(colRich_mod_sum, caption="Table. Statistics for totCol~avgRich linear regression.")
-#' 
-#' ####Figure 9.  Total Extinction vs Richness
-#+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 9.** The total number of regional extinctions that involved a site vs long-term average of the site's richness."
-par(mfrow=c(3,3))
-for(r in 1:length(ureg)){
-	mapDat[reg==ureg[r],j={
-		plot(avgRich, totExt)
-		mtext(ureg[r],side=3,line=0.5,font=2)
-	}]
-}
-#' ####Extinction - Richness Regression
-#+ extVrich-regression
-extRich_regs <- list()
-ureg <- mapDat[,unique(reg)]
-for(r in 1:length(ureg)){
-	extRich_regs[[r]] <- summary(lm(totExt~avgRich, data=mapDat[reg==ureg[r]]))
-}
-names(extRich_regs) <- ureg
-mod_sum_funct <- function(x){
-	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
-}
-extRich_mod_sum <- lapply(extRich_regs, mod_sum_funct)
-extRich_mod_sum <- cbind(reg=names(extRich_regs), rbindlist(extRich_mod_sum))
-extRich_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
-kable(extRich_mod_sum, caption="Table. Statistics for totExt~avgRich linear regression.")
-
-#' 
-# #' ####Figure 10. Unique Colonization vs Unique Extinction
-# #+ u-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 10.** Numbers of colonizations versus extinctions at each site. Species were only counted once per site (even if that species colonized or went extinct from the region multiple times, each time involving the site). Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
-# eval(figure_setup())
-# par(mfrow=c(3,3), mar=c(2.15,2.15,1.15,0.5), cex=1, mgp=c(1,0.25,0), tcl=-0.15, ps=10)
-# for(r in 1:length(ureg)){
-# 	mapDat[reg==ureg[r],j={
-# 		sigColInd <- lI_pvalue_uCol<0.05
-# 		sigExtInd <- lI_pvalue_uExt<0.05
-# 		muCol <- mean(uCol)
-# 		muExt <- mean(uExt)
-# 		hotspotIndCol <- sigColInd #& (totCol > muCol)
-# 		hotspotIndExt <- sigExtInd #& (totExt > muExt)
-# 		both <- hotspotIndExt&hotspotIndCol
-# 		neither <- !hotspotIndExt&!hotspotIndCol
-#
-# 		cols <- vector("character", length(hotspotIndCol))
-# 		cols[hotspotIndCol] <- "blue"
-# 		cols[hotspotIndExt] <- "red"
-# 		cols[both] <- "purple"
-# 		cols[neither] <- "black"
-#
-# 		pchs <- vector("integer", length(hotspotIndCol))
-# 		pchs[hotspotIndCol] <- 3
-# 		pchs[hotspotIndExt] <- 4
-# 		pchs[both] <- 5
-# 		pchs[neither] <- 1
-#
-# 		# print(all(hotspotIndCol | hotspotIndExt | both | neither))
-#
-# 		# pchs <- rep(21, length(hotspotIndExt))
-# 		# pchs[!neither] <- 19
-#
-# 		plot(uExt, uCol, col=cols, pch=pchs, cex=1.2)
-# 		mtext(pretty_reg[ureg[r]],side=3,line=0.01,font=2)
-#
-# 		sigRichInd <- lI_pvalue_rich<0.05
-# 		hotspotIndRich <- sigRichInd
-# 		points(uExt[hotspotIndRich], uCol[hotspotIndRich], col='gray', pch=20, cex=0.7)
-# 	}]
-# }
-#' ####Figure 10b. Total Colonization vs Total Extinction
-#+ tot-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 10b.** Total numbers of colonizations versus extinctions at each site. Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
+#' #Scatterplots involving colonization, richness, extinction
+#' ##Figure 4 & Table: Total Colonization vs Total Extinction
+#+ tot-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure Col v Ext** Total numbers of colonizations versus extinctions at each site. Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
 eval(figure_setup())
 par(mfrow=c(3,3), mar=c(2.15,2.15,1.15,0.5), cex=1, mgp=c(1,0.25,0), tcl=-0.15, ps=10)
 for(r in 1:length(ureg)){
@@ -397,8 +292,120 @@ colExt_mod_sum <- cbind(reg=names(colExt_regs), rbindlist(colExt_mod_sum))
 colExt_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
 kable(colExt_mod_sum, caption="Table. Statistics for totCol~totExt linear regression.")
 
+#' ##Figure: Richness vs Depth
+#+ richVdepth, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure Rich v Depth** Long-term average of per-site species richness vs the depth (m) of the site. Fitted line is a regression of richness ~ depth + depth^2."
+par(mfrow=c(3,3))
+for(r in 1:length(ureg)){
+	mapDat[reg==ureg[r],j={
+		plot(depth, avgRich);
+		mtext(ureg[r],side=3,line=0.5,font=2);
+		lines(sort(depth),predict(lm(avgRich~depth+I(depth^2),data=.SD[order(depth)])))
+	}]
+}
+
+# par(mfrow=c(3,3));mapDat[,j={plot(depth, uCol);mtext(reg,side=3,line=0.5,font=2)},by='reg'] # no relationship between depth and number of species that had a colonization event involving the stratum, nor, as shown by switch uCol to uExt, between depth and extinction
 #' 
-#' ####Figure 11. Total Colonization vs Unique Colonization
+#' ##Figure & Table: Total Colonization vs Richness
+#+ colVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure Col v Rich** The total number of regional colonizations that involved a site vs long-term average of the site's richness."
+par(mfrow=c(3,3))
+for(r in 1:length(ureg)){
+	mapDat[reg==ureg[r],j={
+		plot(avgRich, totCol)
+		mtext(ureg[r],side=3,line=0.5,font=2)
+	}]
+}
+
+#+ colVrich-regression, results="asis"
+colRich_regs <- list()
+ureg <- mapDat[,unique(reg)]
+for(r in 1:length(ureg)){
+	colRich_regs[[r]] <- summary(lm(totCol~avgRich, data=mapDat[reg==ureg[r]]))
+}
+names(colRich_regs) <- ureg
+mod_sum_funct <- function(x){
+	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
+}
+colRich_mod_sum <- lapply(colRich_regs, mod_sum_funct)
+colRich_mod_sum <- cbind(reg=names(colRich_regs), rbindlist(colRich_mod_sum))
+colRich_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
+kable(colRich_mod_sum, caption="Table. Statistics for totCol~avgRich linear regression.")
+
+#' 
+#' ##Figure & Table: Total Extinction vs Richness
+#+ extVrich, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure Ext v Rich** The total number of regional extinctions that involved a site vs long-term average of the site's richness."
+par(mfrow=c(3,3))
+for(r in 1:length(ureg)){
+	mapDat[reg==ureg[r],j={
+		plot(avgRich, totExt)
+		mtext(ureg[r],side=3,line=0.5,font=2)
+	}]
+}
+
+#+ extVrich-regression
+extRich_regs <- list()
+ureg <- mapDat[,unique(reg)]
+for(r in 1:length(ureg)){
+	extRich_regs[[r]] <- summary(lm(totExt~avgRich, data=mapDat[reg==ureg[r]]))
+}
+names(extRich_regs) <- ureg
+mod_sum_funct <- function(x){
+	as.list(c(x$coefficients[2,c("Estimate","Pr(>|t|)")],"R2"=x$r.squared))
+}
+extRich_mod_sum <- lapply(extRich_regs, mod_sum_funct)
+extRich_mod_sum <- cbind(reg=names(extRich_regs), rbindlist(extRich_mod_sum))
+extRich_mod_sum[,c("pAdjusted"):=p.adjust(get("Pr(>|t|)"), method="BH")]
+kable(extRich_mod_sum, caption="Table. Statistics for totExt~avgRich linear regression.")
+
+#' 
+# #' ####Figure 10. Unique Colonization vs Unique Extinction
+# #+ u-colVext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 10.** Numbers of colonizations versus extinctions at each site. Species were only counted once per site (even if that species colonized or went extinct from the region multiple times, each time involving the site). Colors and shapes indicate the metrics with significant local spatial autocorrelation at the site: Blue +’s are colonization only, red x’s are extinction only, purple diamonds are both colonization and extinction, and black circles are neither colonization nor extinction. Gray circles were overlaid on sites with significant clustering in local species richness."
+# eval(figure_setup())
+# par(mfrow=c(3,3), mar=c(2.15,2.15,1.15,0.5), cex=1, mgp=c(1,0.25,0), tcl=-0.15, ps=10)
+# for(r in 1:length(ureg)){
+# 	mapDat[reg==ureg[r],j={
+# 		sigColInd <- lI_pvalue_uCol<0.05
+# 		sigExtInd <- lI_pvalue_uExt<0.05
+# 		muCol <- mean(uCol)
+# 		muExt <- mean(uExt)
+# 		hotspotIndCol <- sigColInd #& (totCol > muCol)
+# 		hotspotIndExt <- sigExtInd #& (totExt > muExt)
+# 		both <- hotspotIndExt&hotspotIndCol
+# 		neither <- !hotspotIndExt&!hotspotIndCol
+#
+# 		cols <- vector("character", length(hotspotIndCol))
+# 		cols[hotspotIndCol] <- "blue"
+# 		cols[hotspotIndExt] <- "red"
+# 		cols[both] <- "purple"
+# 		cols[neither] <- "black"
+#
+# 		pchs <- vector("integer", length(hotspotIndCol))
+# 		pchs[hotspotIndCol] <- 3
+# 		pchs[hotspotIndExt] <- 4
+# 		pchs[both] <- 5
+# 		pchs[neither] <- 1
+#
+# 		# print(all(hotspotIndCol | hotspotIndExt | both | neither))
+#
+# 		# pchs <- rep(21, length(hotspotIndExt))
+# 		# pchs[!neither] <- 19
+#
+# 		plot(uExt, uCol, col=cols, pch=pchs, cex=1.2)
+# 		mtext(pretty_reg[ureg[r]],side=3,line=0.01,font=2)
+#
+# 		sigRichInd <- lI_pvalue_rich<0.05
+# 		hotspotIndRich <- sigRichInd
+# 		points(uExt[hotspotIndRich], uCol[hotspotIndRich], col='gray', pch=20, cex=0.7)
+# 	}]
+# }
+
+
+#'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#'   
+#' #Compare Total and Unique Metrics
+#' ##Figure: Total Colonization vs Unique Colonization
 #+ totcolVucol, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 11.** The total number of colonization events at each site vs the number of species that ever had a colonization event involving the site."
 par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
@@ -409,7 +416,7 @@ for(r in 1:length(ureg)){
 	}]
 }
 #' 
-#' ####Figure 12. Total Extinction vs Unique Extinction
+#' ##Figure: Total Extinction vs Unique Extinction
 #+ totextVuext, echo=TRUE, fig.width=7, fig.height=7, fig.cap="**Figure 12.** The total number of extinction events at each site vs the number of species that ever had an extinction event involving the site."
 par(mfrow=c(3,3))
 for(r in 1:length(ureg)){
@@ -466,7 +473,7 @@ endo <- trawlDiversity::data_all[reg!='wcann' & K==1,j={
 	list(stratum=stratum, totStrat=totStrat)
 	
 },by=c('reg','year','spp')]
-endo[,sum(totStrat==1),by=c('reg','spp')]
+print(endo[,sum(totStrat==1),by=c('reg','spp')])
 
 
 #' Number of species that are only present in 1 site per year per region: `r endo[,max(totStrat),by=c('reg','spp')][,sum(V1==1)]`  
@@ -486,52 +493,17 @@ data_all[spp=="Decapterus punctatus", plot(lon, lat, col=as.factor(reg))]; map(a
 #' Now to examine the question from a site perspective.
 e1 <- endo[,list(avg_totStrat=mean(totStrat)),by=c("reg","year","stratum")]
 e2 <- e1[,list(avg_totStrat=mean(avg_totStrat)),by=c("reg","stratum")]
-par(mfrow=c(3,3));merge(mapDat, e2)[,j={hist(avg_totStrat, main=reg[1]);NULL}, by='reg']
+par(mfrow=c(3,3))
+merge(mapDat, e2)[,j={hist(avg_totStrat, main=reg[1]);NULL}, by='reg']
 
 
-# ===========
-# = testing =
-# ===========
+#' #Beta Diversity Clustering of Sites w/ Local AC
+#' ##Geographic Distance and Beta Diversity Functions
+#+ betaD-AC-Cluster-functions
 betaDist <- function(Y){
 	ade4::dist.binary(Y, method=1)^2
 }
-getY_col <- function(){
-	
-	return(Y)
-}
 
-
-# ---- cluster sites ----
-colClustSite <- spatialDiversity::mapDat[lI_pvalue_totCol < 0.05 & totCol>mean(totCol), stratum, by='reg']
-extClustSite <- spatialDiversity::mapDat[lI_pvalue_totExt < 0.05 & totExt>mean(totExt), stratum, by='reg']
-
-colSppYear <- col_ext_dt[col==1, list(spp, year), by='reg']
-extSppYear <- col_ext_dt[ext==1, list(spp, year), by='reg']
-
-subCols <- expression(list(reg, year, spp, stratum, K, Kmax, lon, lat, wtcpue, btemp, depth))
-
-colDat <- data_all2[colSppYear, on=c('reg','spp','year')][colClustSite, on=c("reg", "stratum"), eval(subCols)] #[!is.na(lon)]
-extDat <- data_all2[extSppYear, on=c('reg','spp','year')][extClustSite, on=c("reg", "stratum"), eval(subCols)]#[!is.na(lon)]
-
-strat2ll <- function(stratum){
-	ll_split <- strsplit(stratum, " ")
-	Lon <- as.numeric(sapply(ll_split, function(x)x[1]))
-	Lat <- as.numeric(sapply(ll_split, function(x)x[2]))
-	list(lon=Lon, lat=Lat)
-}
-
-# lay_mat0 <- as.matrix(raster::disaggregate(raster::raster(matrix(1:9, nrow=3)), fact=4))
-# lay_mat <- lay_mat0
-# for(r in 1:length(ur)){
-# 	val <- 1 + 2*(r-1)
-# 	ind <- lay_mat0==r
-# 	lay_mat[ind] <- val
-# 	nr <- sqrt(sum(ind))
-# 	slm <- (lay_mat[ind])
-# 	tm <- matrix(lay_mat[ind], nrow=nr)
-# 	diag(tm) <- c(rep(val+1, nr/2), rep(val, nr/2))
-# 	lay_mat[ind] <- tm
-# }
 geoDist <- function(x, y){
 	if(!is.null(nrow(x))){
 		x <- as.matrix(x)
@@ -546,8 +518,8 @@ geoDist <- function(x, y){
 	y[y180] <- y[y180] + 360
 	
 	geosphere::distVincentyEllipsoid(x, y)/1E3
-	
 }
+
 dendroMap <- function(Dat){
 	ur <- Dat[,unique(reg)]
 	mat <- structure(vector('list', length(ur)), .Names=ur)
@@ -589,7 +561,7 @@ dendroMap <- function(Dat){
 		if(nrow(tmat)>0){
 			ll <- strat2ll(strat_names)
 			text(x=(ll$lon), y=(ll$lat), strat_names_short, col=stratCol[strat_names])
-			geo <- geoDist(ll$lon, ll$lat)
+			# geo <- geoDist(ll$lon, ll$lat) # geoDist(c(ll$lon[1], ll$lat[1]), c(ll$lon[2], ll$lat[2]))
 		}
 	
 		if(nrow(tmat) > 1){
@@ -604,9 +576,53 @@ dendroMap <- function(Dat){
 	invisible(NULL)
 }
 
+strat2ll <- function(stratum){
+	ll_split <- strsplit(stratum, " ")
+	Lon <- as.numeric(sapply(ll_split, function(x)x[1]))
+	Lat <- as.numeric(sapply(ll_split, function(x)x[2]))
+	list(lon=Lon, lat=Lat)
+}
+
+
+
+# ---- cluster sites ----
+#' ##Data for Col/ Ext Clustering & Local Community Composition
+#+ betaD-AC-Cluster-data
+#' First get the sites that have significant local spatial AC  
+colClustSite <- spatialDiversity::mapDat[lI_pvalue_totCol < 0.05 & totCol>mean(totCol), stratum, by='reg']
+extClustSite <- spatialDiversity::mapDat[lI_pvalue_totExt < 0.05 & totExt>mean(totExt), stratum, by='reg']
+
+#' Pull out the years and species for colonizations, extinctions  
+colSppYear <- col_ext_dt[col==1, list(spp, year), by='reg']
+extSppYear <- col_ext_dt[ext==1, list(spp, year), by='reg']
+
+#' Cross reference the AC sites and the c/e years & spp to subset full data set  
+#' Basically, had to use mapDat to get there "where", and had to use col_ext_dt to get the "who" and "when",  then I had to use data_all2 (same as data_all, except subset to first haul within stratum-year) to get wtcpue, btemp, depth, etc.
+subCols <- expression(list(reg, year, spp, stratum, K, Kmax, lon, lat, wtcpue, btemp, depth))
+colDat <- data_all2[colSppYear, on=c('reg','spp','year')][colClustSite, on=c("reg", "stratum"), eval(subCols)] #[!is.na(lon)]
+extDat <- data_all2[extSppYear, on=c('reg','spp','year')][extClustSite, on=c("reg", "stratum"), eval(subCols)]#[!is.na(lon)]
+
+
+# lay_mat0 <- as.matrix(raster::disaggregate(raster::raster(matrix(1:9, nrow=3)), fact=4))
+# lay_mat <- lay_mat0
+# for(r in 1:length(ur)){
+# 	val <- 1 + 2*(r-1)
+# 	ind <- lay_mat0==r
+# 	lay_mat[ind] <- val
+# 	nr <- sqrt(sum(ind))
+# 	slm <- (lay_mat[ind])
+# 	tm <- matrix(lay_mat[ind], nrow=nr)
+# 	diag(tm) <- c(rep(val+1, nr/2), rep(val, nr/2))
+# 	lay_mat[ind] <- tm
+# }
+
+#' ##Figure: Colonization AC & Beta Diversity Clustering
+#+ betaD-AC-Cluster-colFig, fig.cap="**Exploratory Figure.** Sites are labeled with a letter if their rates of EXTINCTION have significant local spatial autocorrelation (AC). In the left-hand panels, their geographic locations are shown. In the right-hand panels are dendrograms that are drawn via hierarchical clustering using beta diversity as the distance metric. Thus, left-hand panels indicate clustering based on spatial AC of EXTINCTION rates, and the right-hand panels indicate clustering based on beta diversity. Color boxes are drawn around dendrograms clusters (though some do not show up, and I'm not entirely sure why)."
 par(mfrow=c(9,2), mar=c(1,1,0.25,0.25), cex=1, ps=8)
 dendroMap(colDat)
 
+#' ##Figure: Extinction AC & Beta Diversity Clustering
+#+ betaD-AC-Cluster-extFig, fig.cap="**Exploratory Figure.** Sites are labeled with a letter if their rates of COLONIZATION have significant local spatial autocorrelation (AC). In the left-hand panels, their geographic locations are shown. In the right-hand panels are dendrograms that are drawn via hierarchical clustering using beta diversity as the distance metric. Thus, left-hand panels indicate clustering based on spatial AC of COLONIZATION rates, and the right-hand panels indicate clustering based on beta diversity. Color boxes are drawn around dendrograms clusters (though some do not show up, and I'm not entirely sure why)."
 par(mfrow=c(9,2), mar=c(1,1,0.25,0.25), cex=1, ps=8)
 dendroMap(extDat)
 
