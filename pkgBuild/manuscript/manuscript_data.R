@@ -124,6 +124,30 @@ for(ce in 1:length(lac_val)){
 	mapDat[,reg:=as.character(reg)]
 }
 
+# ===============
+# = spp_master2 =
+# ===============
+spp_master2 <- merge(data_all2, col_ext_dt, by=c("reg","year","spp"), all=TRUE)
+spp_master2[is.na(col) & is.na(ext), c('col','ext'):=list(0, 0)] # for the 'neither' spp
+define_ce_categ <- function(X){
+	ext <- X[,ext]
+	col <- X[,col]
+	if(all(col==0) & all(ext==0)){
+		return("neither")
+	}
+	if(all(col==0) & any(ext==1)){
+		return("leaver")
+	}
+	if(any(col==1) & all(ext==0)){
+		return("colonizer")
+	}
+	if(any(col==1) & any(ext==1)){
+		return("both")
+	}
+}
+spp_master2[,ce_categ:=define_ce_categ(.SD),by=c("reg","spp")]
+
+
 # =================================
 # = Save Data Ojbects for Package =
 # =================================
@@ -132,5 +156,5 @@ save(mapOwin, file="data/mapOwin.RData")
 save(localAC, file="data/localAC.RData")
 save(data_all2, file="data/data_all2.RData")
 save(col_ext_dt, file="data/col_ext_dt.RData")
-
+save(spp_master2, file="data/spp_master2.RData")
 
