@@ -29,112 +29,112 @@ qgraph::qgraph(as_adj(g), colFactor=1, edge.width=1.5, labels=names(V(adj_graph)
 # dev.off()
 
 
-# ==============================================
-# = Colonization-Extinction Cross-Site Network =
-# ==============================================
-# Part 1 (spp_master)
-# identify year of each colonization (per species-region)
-# identify year of each extinction
-# for each colonization year, if there is not a later year for extinction (or equal, if only present for 1 year in a row), remove it
-# for each remaining colonization year, assign it the 'from' attribute
-# for each colonization year that is 'from', identify an extinction year that is later, and assign it the 'to' attribute
-# summarize result as a reg, spp, from_year, to_year
-# 
-# Part 2 (data_all)
-# for each reg-spp-from_year combination, lookup the colonization sites, assign from_site
-# for each reg-spp-to_year combination, lookup the extinction sites, assign to_site
-# use CJ() to associate each from_site with each to_site for a given reg-spp-from_year-to_year combination
-# summarize result as reg, spp, from_year, from_site, to_year, to_site
-
-findSoonestAfter <- function(x, y){
-	# @param x length 1, a year for which we want to find a subsequent or concurrent event 
-	# @param y a vector of arbitrary length, containing years that may or may not occur after x
-	#
-	# @details
-	# Finds the smallest value in y that is greater than or equal to x Finds indices of y whose values are greater than or equal to the value of x. Then
-	stopifnot(length(x)==1)
-	later <- y>=x
-	if(any(later, na.rm=TRUE)){
-		min(y[later], na.rm=TRUE)
-	}else{
-		NA
-	}
-	# would just do match(TRUE, y>=x), but this only returns earliest year (years are in y) if y is sorted
-	# SLOWER:
-	# fsa2 <- function(x, y){
-# 		stopifnot(length(x)==1)
-# 		y <- sort(y)
-# 		later <- y>=x
-# 		y[match(TRUE,later)]
+# # ==============================================
+# # = Colonization-Extinction Cross-Site Network =
+# # ==============================================
+# # Part 1 (spp_master)
+# # identify year of each colonization (per species-region)
+# # identify year of each extinction
+# # for each colonization year, if there is not a later year for extinction (or equal, if only present for 1 year in a row), remove it
+# # for each remaining colonization year, assign it the 'from' attribute
+# # for each colonization year that is 'from', identify an extinction year that is later, and assign it the 'to' attribute
+# # summarize result as a reg, spp, from_year, to_year
+# #
+# # Part 2 (data_all)
+# # for each reg-spp-from_year combination, lookup the colonization sites, assign from_site
+# # for each reg-spp-to_year combination, lookup the extinction sites, assign to_site
+# # use CJ() to associate each from_site with each to_site for a given reg-spp-from_year-to_year combination
+# # summarize result as reg, spp, from_year, from_site, to_year, to_site
+#
+# findSoonestAfter <- function(x, y){
+# 	# @param x length 1, a year for which we want to find a subsequent or concurrent event
+# 	# @param y a vector of arbitrary length, containing years that may or may not occur after x
+# 	#
+# 	# @details
+# 	# Finds the smallest value in y that is greater than or equal to x Finds indices of y whose values are greater than or equal to the value of x. Then
+# 	stopifnot(length(x)==1)
+# 	later <- y>=x
+# 	if(any(later, na.rm=TRUE)){
+# 		min(y[later], na.rm=TRUE)
+# 	}else{
+# 		NA
 # 	}
-}
-
-
-from_to_years <- trawlDiversity::spp_master[ce_categ=="both",j={
-	col_years_all <- year[col==1]
-	ext_years_all <- year[ext==1]
-	
-	to_year <- sapply(col_years_all, findSoonestAfter, y=ext_years_all)
-	noNA <- !is.na(to_year)
-	if(any(noNA)){
-		from_year <- col_years_all[noNA]
-		to_year <- to_year[noNA]
-		list(from_year=from_year, to_year=to_year)
-	}else{
-		NULL # easier to do null than to have to complete.cases() later
-		# list(from_year=NA_real_, to_year=NA_real_)
-	}
-},by=c("reg","spp")]
-
-
-# This is slow ... see faster version below doign pt1, pt2 etc
-# from_to_years[,j={
-# 	from_sites <- data_all[.SD, on=c("reg","spp",year="from_year")][,stratum]
-# 	to_sites <- data_all[.SD, on=c("reg","spp",year="to_year")][,stratum]
-# 	combos <- CJ(from_site=from_sites, to_site=to_sites)
-# 	data.table(from_year, to_year, combos)
-# },by=c("reg","spp","from_year","to_year"),.SDcols=names(from_to_years)]
-
-# faster than above
-pt1 <- unique(trawlDiversity::data_all[,list(reg,spp,year,stratum)])[from_to_years,on=c("reg","spp",year="from_year")]
-pt1 <- pt1[,list(reg,spp,from_year=year,to_year,from_site=stratum)]
-pt2 <- unique(trawlDiversity::data_all[,list(reg,spp,year,stratum)])[from_to_years,on=c("reg","spp",year="to_year")]
-pt2 <- pt2[,list(reg,spp,from_year,to_year=year,to_site=stratum)]
-from_to <- merge(pt1, pt2, all=TRUE, allow.cartesian=TRUE)
-from_to <- from_to[!from_year==to_year] # remove when col ext happen same year
-
-stratum2ll <- function(x){
-	lonlat_pat <- "^(-[0-9]{2,3}\\.[0-9]{2}) ([0-9]{2,3}\\.[0-9]{2}) [0-9]{1,4}$"
-	data.table(site=x, lon=as.numeric(gsub(lonlat_pat, "\\1", x)), lat=as.numeric(gsub(lonlat_pat, "\\2", x)))
-	# from_to[,lon:=as.numeric(gsub(lonlat_pat, "\\1", from_site))]
-	# from_to[,lat:=as.numeric(gsub(lonlat_pat, "\\2", from_site))]
-}
-
-
-geoDist <- function(x, y){
-	if(!is.null(nrow(x))){
-		x <- as.matrix(x)
-	}
-	if(!is.null(nrow(y))){
-		y <- as.matrix(y)
-	}
-	
-	x180 <- x < -180
-	x[x180] <- x[x180] + 360
-	y180 <- y < -180
-	y[y180] <- y[y180] + 360
-	
-	geosphere::distVincentyEllipsoid(x, y)/1E3
-	
-}
-
-siteLL <- from_to[,stratum2ll(unique(c(from_site,to_site))),by='reg']
-fromLL <- from_to[,stratum2ll(from_site)[,list(from_lon=lon,from_lat=lat)]]
-toLL <- from_to[,stratum2ll(to_site)[,list(to_lon=lon,to_lat=lat)]]
-from_to <- cbind(from_to, fromLL, toLL)
-from_to[,dist:=geoDist(x=data.table(from_lon, from_lat), y=data.table(to_lon, to_lat))]
-# from_to[,.SD[which.min(dist)],by=c('reg','spp','from_year','to_year')] # if multiple have smallest, only returns first
-# from_to <- from_to[,.SD[dist%in%min(dist)],by=c('reg','spp','from_year','to_year')] # if multiple have smallest, returns all of them
+# 	# would just do match(TRUE, y>=x), but this only returns earliest year (years are in y) if y is sorted
+# 	# SLOWER:
+# 	# fsa2 <- function(x, y){
+# # 		stopifnot(length(x)==1)
+# # 		y <- sort(y)
+# # 		later <- y>=x
+# # 		y[match(TRUE,later)]
+# # 	}
+# }
+#
+#
+# from_to_years <- trawlDiversity::spp_master[ce_categ=="both",j={
+# 	col_years_all <- year[col==1]
+# 	ext_years_all <- year[ext==1]
+#
+# 	to_year <- sapply(col_years_all, findSoonestAfter, y=ext_years_all)
+# 	noNA <- !is.na(to_year)
+# 	if(any(noNA)){
+# 		from_year <- col_years_all[noNA]
+# 		to_year <- to_year[noNA]
+# 		list(from_year=from_year, to_year=to_year)
+# 	}else{
+# 		NULL # easier to do null than to have to complete.cases() later
+# 		# list(from_year=NA_real_, to_year=NA_real_)
+# 	}
+# },by=c("reg","spp")]
+#
+#
+# # This is slow ... see faster version below doign pt1, pt2 etc
+# # from_to_years[,j={
+# # 	from_sites <- data_all[.SD, on=c("reg","spp",year="from_year")][,stratum]
+# # 	to_sites <- data_all[.SD, on=c("reg","spp",year="to_year")][,stratum]
+# # 	combos <- CJ(from_site=from_sites, to_site=to_sites)
+# # 	data.table(from_year, to_year, combos)
+# # },by=c("reg","spp","from_year","to_year"),.SDcols=names(from_to_years)]
+#
+# # faster than above
+# pt1 <- unique(trawlDiversity::data_all[,list(reg,spp,year,stratum)])[from_to_years,on=c("reg","spp",year="from_year")]
+# pt1 <- pt1[,list(reg,spp,from_year=year,to_year,from_site=stratum)]
+# pt2 <- unique(trawlDiversity::data_all[,list(reg,spp,year,stratum)])[from_to_years,on=c("reg","spp",year="to_year")]
+# pt2 <- pt2[,list(reg,spp,from_year,to_year=year,to_site=stratum)]
+# from_to <- merge(pt1, pt2, all=TRUE, allow.cartesian=TRUE)
+# from_to <- from_to[!from_year==to_year] # remove when col ext happen same year
+#
+# stratum2ll <- function(x){
+# 	lonlat_pat <- "^(-[0-9]{2,3}\\.[0-9]{2}) ([0-9]{2,3}\\.[0-9]{2}) [0-9]{1,4}$"
+# 	data.table(site=x, lon=as.numeric(gsub(lonlat_pat, "\\1", x)), lat=as.numeric(gsub(lonlat_pat, "\\2", x)))
+# 	# from_to[,lon:=as.numeric(gsub(lonlat_pat, "\\1", from_site))]
+# 	# from_to[,lat:=as.numeric(gsub(lonlat_pat, "\\2", from_site))]
+# }
+#
+#
+# geoDist <- function(x, y){
+# 	if(!is.null(nrow(x))){
+# 		x <- as.matrix(x)
+# 	}
+# 	if(!is.null(nrow(y))){
+# 		y <- as.matrix(y)
+# 	}
+#
+# 	x180 <- x < -180
+# 	x[x180] <- x[x180] + 360
+# 	y180 <- y < -180
+# 	y[y180] <- y[y180] + 360
+#
+# 	geosphere::distVincentyEllipsoid(x, y)/1E3
+#
+# }
+#
+# siteLL <- from_to[,stratum2ll(unique(c(from_site,to_site))),by='reg']
+# fromLL <- from_to[,stratum2ll(from_site)[,list(from_lon=lon,from_lat=lat)]]
+# toLL <- from_to[,stratum2ll(to_site)[,list(to_lon=lon,to_lat=lat)]]
+# from_to <- cbind(from_to, fromLL, toLL)
+# from_to[,dist:=geoDist(x=data.table(from_lon, from_lat), y=data.table(to_lon, to_lat))]
+# # from_to[,.SD[which.min(dist)],by=c('reg','spp','from_year','to_year')] # if multiple have smallest, only returns first
+# # from_to <- from_to[,.SD[dist%in%min(dist)],by=c('reg','spp','from_year','to_year')] # if multiple have smallest, returns all of them
 
 getNB <- function(lon, lat){
 	locs <- simplify2array(ll2km(lon, lat))[,2:1] # converts to km while accounting for lon-lat coordinates
