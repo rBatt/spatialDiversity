@@ -101,6 +101,7 @@ pt1 <- pt1[,list(reg,spp,from_year=year,to_year,from_site=stratum)]
 pt2 <- unique(trawlDiversity::data_all[,list(reg,spp,year,stratum)])[from_to_years,on=c("reg","spp",year="to_year")]
 pt2 <- pt2[,list(reg,spp,from_year,to_year=year,to_site=stratum)]
 from_to <- merge(pt1, pt2, all=TRUE, allow.cartesian=TRUE)
+from_to <- from_to[!from_year==to_year] # remove when col ext happen same year
 
 stratum2ll <- function(x){
 	lonlat_pat <- "^(-[0-9]{2,3}\\.[0-9]{2}) ([0-9]{2,3}\\.[0-9]{2}) [0-9]{1,4}$"
@@ -170,7 +171,8 @@ for(r in 1:length(ur)){
 # write.csv(as.matrix(as_adj(g_list[['ebs']]$graph)), file="../manuscript/adjMat_example_EasternBeringSea.csv", row.names=TRUE)
 # write.csv(as.matrix(as_adj(g_list[['ai']]$graph)), file="../manuscript/adjMat_example_AleutianIslands.csv", row.names=TRUE)
 
-dev.new(width=7, height=3)
+# dev.new(width=7, height=3)
+pdf("trawlNetwork_full.pdf", width=7, height=3)
 eval(figure_setup())
 # ur <- from_to[,unique(reg)[unique(reg)%in%names(pretty_reg)]]
 ur <- from_to[,names(pretty_reg)[names(pretty_reg)%in%unique(reg)]]
@@ -192,7 +194,10 @@ for(r in 1:length(ur)){
 	
 	thresh <- trunc(median(unique(as.numeric(am))))
 	qgraph(am, layout=g_list[[tr]]$layout, labels=FALSE, rescale=FALSE, plot=FALSE, normalize=TRUE, vTrans=0, diag=TRUE, edge.width=1, loop=30, asize=5, directed=TRUE, arrows=2, edge.color=ecol, border.color=adjustcolor('gray',0.25), threshold=0, vsize=10)
+	# mtext(paste0(round(sum(diag(am>0))/sum((am>0)),2)*100,"% loops"), side=3, line=-0.25, font=2)
+	mtext(paste0(round(sum(diag(am))/sum((am)),2)*100,"% weight in loops"), side=3, line=-0.15, font=2)
 }
+dev.off()
 
 
 # ==========
@@ -232,4 +237,61 @@ neus_pat <- as.matrix(as_adj(g_list[['neus']]$graph))
 neus_patScale <- rowScale(neus_pat) #t(t(neus_pat)/pmax(rowSums(neus_pat),1))
 which(neus_patScale%^%1E5 != 0)
 all(eigen(neus_patScale)[[2]][,1] == 0)
+
+
+# ============
+# = centroid =
+# ============
+from_to_cent <- from_to[,j={
+	centLL <- as.data.table(lapply(.SD[,list(from_lon,from_lat,to_lon,to_lat)], median)) # might need to do this calculation considering spherical shape of Earth, but as a first cut this will at least help determine if the procedure simplifies the graph
+	from_dist <- geoDist(centLL[,list(from_lon,from_lat)], data.table(from_lon,from_lat))
+	to_dist <- geoDist(centLL[,list(to_lon,to_lat)], data.table(to_lon,to_lat))
+	from_snap <- .SD[which.min(abs(from_dist)),list(from_lon,from_lat,from_site)]
+	to_snap <- .SD[which.min(abs(to_dist)),list(to_lon,to_lat,to_site)]
+	cbind(from_snap, to_snap)
+	
+},by=c("reg","spp","from_year","to_year")]
+
+
+eval(figure_setup())
+ur <- from_to_cent[,names(pretty_reg)[names(pretty_reg)%in%unique(reg)]]
+g_list_cent <- structure(vector("list", 9), .Names=ur)
+for(r in 1:length(ur)){
+	tr <- ur[r]
+	tdat <- from_to_cent[reg==tr,list(from=from_site, to=to_site, reg, spp, from_year, to_year)]
+	tsll <- siteLL[reg==tr][,reg:=NULL]
+	vertices <- tsll[tdat[,unique(c(from,to))], on="site"]
+	tg <- igraph::graph_from_data_frame(tdat, directed=TRUE, vertices=vertices)
+	g_list_cent[[tr]]$graph <- tg
+	g_list_cent[[tr]]$layout <- as.matrix(vertices[,list(x=lon,y=lat)])
+}
+
+# dev.new(width=7, height=3)
+pdf(file="trawlNetwork_centroid.pdf", width=7, height=3)
+eval(figure_setup())
+# ur <- from_to[,unique(reg)[unique(reg)%in%names(pretty_reg)]]
+ur <- from_to_cent[,names(pretty_reg)[names(pretty_reg)%in%unique(reg)]]
+map_layout <- trawl_layout()
+par(mar=c(0.9,0.9,0.25,0.25), mgp=c(0.5,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.95,0.7,1,0.1))
+layout(map_layout)
+# par(mfrow=c(3,3), mar=c(0.5,0.5,0.5,0.5))
+for(r in 1:length(ur)){
+	tr <- ur[r]
+	plot(mapOwin[[tr]], main="")
+	maps::map(add=TRUE, fill=TRUE, col='lightgray')
+	am <- as_adj(g_list_cent[[tr]]$graph)
+	
+	ecol <- as.matrix(am)
+	ecol[] <- 'blue'
+	sll <- gsub(" [0-9]{1,4}$", "", rownames(ecol))
+	isSame <- outer(sll, sll, "==")
+	ecol[isSame] <- 'red'
+	
+	thresh <- trunc(median(unique(as.numeric(am))))
+	qgraph(am, layout=g_list_cent[[tr]]$layout, labels=FALSE, rescale=FALSE, plot=FALSE, normalize=TRUE, vTrans=0, diag=TRUE, edge.width=1, loop=30, asize=5, directed=TRUE, arrows=2, edge.color=ecol, border.color=adjustcolor('gray',0.5), threshold=0, vsize=10, curveAll=TRUE)
+	# mtext(paste0(round(sum(diag(am>0))/sum((am>0)),2)*100,"% loops"), side=3, line=-0.25, font=2)
+	mtext(paste0(round(sum(diag(am))/sum((am)),2)*100,"% weight in loops"), side=3, line=-0.15, font=2)
+}
+dev.off()
+
 
