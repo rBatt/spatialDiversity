@@ -370,6 +370,14 @@ kable(extRich_mod_sum, caption="Table. Statistics for totExt~avgRich linear regr
 # 	}]
 # }
 
+#'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#'   
+#' #Distance Between Colonization & Extinction Sites
+#' Want to analyze the geographic proximity of colonization/ extinction sites on a per-species basis. Hotspots for colonization events might be formed by species that do not go extinct in the extinction hotspots. Seems unlikely, but is possible; especially because the percentage of c/e events in a hotspot is small (relative to total number of events across all sites).
+
 
 #'   
 #' \FloatBarrier  
@@ -398,9 +406,6 @@ for(r in 1:length(ureg)){
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
-
-
-
 
 
 #'   
@@ -528,34 +533,63 @@ dendroMap(extDat)
 #' ***  
 #' 
 #' #Additional Exploratory Analyses
-#' ##Table: Fraction of Colonization and Extinctions in Hotspots
-#+ tbl-fracColExtInHotspot
+#' ##Table: Number of Sites that are Cold- or Hotspots
+#+ tbl-nSitesColExtLSA
 nLSA <- mapDat[,j={
 	sigRichInd <- lI_pvalue_rich<0.05
 	sigColInd <- lI_pvalue_totCol<0.05
 	sigExtInd <- lI_pvalue_totExt<0.05
 	muCol <- mean(totCol)
 	muExt <- mean(totExt)
-	hotspotIndCol <- sigColInd & (totCol > muCol)
-	hotspotIndExt <- sigExtInd & (totExt > muExt)
+	hotIndCol <- sigColInd & (totCol > muCol)
+	hotIndExt <- sigExtInd & (totExt > muExt)
 	
 	list(
 		nSites = length(unique(stratum)),
 		
 		nRichLSA = sum(sigRichInd),
-		nRichHotspot = sum(sigRichInd & (avgRich > mean(avgRich))),
-		nRichColdspot = sum(sigRichInd & (avgRich < mean(avgRich))),
+		nRichHot = sum(sigRichInd & (avgRich > mean(avgRich))),
+		nRichCold = sum(sigRichInd & (avgRich < mean(avgRich))),
 		
 		nColLSA = sum(sigColInd),
-		nColHotspot = sum(hotspotIndCol),
-		nColColdspot = sum(sigColInd & (totCol < muCol)),
+		nColHot = sum(hotIndCol),
+		nColCold = sum(sigColInd & (totCol < muCol)),
 		
 		nExtLSA = sum(sigExtInd),
-		nExtHotspot = sum(hotspotIndExt),
-		nExtExtdspot = sum(sigExtInd & (totExt < muExt))
+		nExtHot = sum(hotIndExt),
+		nExtExtd = sum(sigExtInd & (totExt < muExt))
 	)
 },by=c("reg")]
-kable(nLSA)
+kable(nLSA, caption="Number of sites in total, in coldspots, and in hotspots. Cluster definition (coldspot, hotspot) split across richness, colonization, and extinction.")
+
+#' ##Table: Percentage of C/E Events in Hotspots/ Coldspots
+#+ tbl-percentEventsHotCold
+percEventsLSA <- mapDat[,j={
+	sigRichInd <- lI_pvalue_rich<0.05
+	sigColInd <- lI_pvalue_totCol<0.05
+	sigExtInd <- lI_pvalue_totExt<0.05
+	muCol <- mean(totCol)
+	muExt <- mean(totExt)
+	nSite <- length(unique(stratum))
+	hotIndCol <- sigColInd & (totCol > muCol)
+	hotIndExt <- sigExtInd & (totExt > muExt)
+	coldIndCol <- sigColInd & (totCol < muCol)
+	coldIndExt <- sigExtInd & (totExt < muExt)
+	
+	list(
+		nSites = nSite,
+		
+		percColLSA = round((sum(totCol[sigColInd])/sum(totCol))*100, 2),
+		percColHot = round((sum(totCol[hotIndCol]) /sum(totCol))*100, 2),
+		percColCold = round((sum(totCol[coldIndCol]) /sum(totCol))*100, 2),
+		
+		percExtLSA = round((sum(totExt[sigExtInd])/sum(totExt))*100, 2),
+		percExtHot = round((sum(totExt[hotIndExt]) /sum(totExt))*100, 2),
+		percExtCold = round((sum(totExt[coldIndExt]) /sum(totExt))*100, 2)
+	)
+},by=c("reg")]
+
+kable(percEventsLSA)
 
 #'   
 #' \FloatBarrier  
