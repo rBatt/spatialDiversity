@@ -115,25 +115,11 @@ ureg <- mapDat[,unique(reg)]
 #+ rich-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 1.** Maps of long-term averages of richness at each site for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Richness values were smoothed using a Gaussian kernel smoother. The smoothed richness value is indicated by the color bars in each panel; colors are scaled independently for each region."
 ceRate_map(ce="richness", main="Average Richness")
 #' 
-# #' ####Figure 2. Colonization map
-# #+ col-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2.** Maps of long-term averages of colonizations per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of colonization rate were smoothed using a Gaussian kernel smoother. The smoothed colonization rate is indicated by the color bars in each panel; colors are scaled independently for each region."
-# ceRate_map(ce="colonization")
-# #'
-# #' ####Figure 2b. Unique Colonization map
-# #+ ucol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2b.** Maps of the number of unique species with regional colonizations involving each site."
-# ceRate_map(ce="uCol")
 #' 
 #' ##Figure 2. Total Colonization map
 #+ totcol-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 2c.** Maps of total colonizations per site."
 ceRate_map(ce="totCol", main="Total Colonizations")
 #'   
-# #' ####Figure 3. Extinction map
-# #+ ext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3.** Maps of long-term averages of extinctions per site per decade for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Values of extinction rate were smoothed using a Gaussian kernel smoother. The smoothed extinction rate is indicated by the color bars in each panel; colors are scaled independently for each region."
-# ceRate_map(ce="extinction")
-# #'
-# #' ####Figure 3b. Unique Extinction map
-# #+ uext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3b.** Maps of the number of unique species with regional colonizations involving each site."
-# ceRate_map(ce="uExt")
 #'   
 #' ##Figure 3. Total Extinction map
 #+ totext-map, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 3c.** Maps of the total number of regional extinctions involving each site."
@@ -200,25 +186,11 @@ kable(
 #+ rich-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 4.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
 nb_moranI(ce="richness")
 #' 
-# #' ####Figure 5. Colonization neighborhood
-# #+ col-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5.** Connectivity and local spatial autocorrelation of colonization events in each region."
-# nb_moranI(ce="colonization")
-# #'
-# #' ####Figure 5b. Unique Colonization neighborhood
-# #+ ucol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5b.** Connectivity and local spatial autocorrelation of colonization events (each species only counted once per stratum) in each region."
-# nb_moranI(ce="uCol")
 #' 
 #' ##Figure S2. Total Colonization neighborhood
 #+ totcol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5c.** Connectivity and local spatial autocorrelation of colonization events (each species possibly counted more than once per stratum) in each region."
 nb_moranI(ce="totCol")
 #'   
-# #' ####Figure 6. Extinction neighborhood
-# #+ ext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6.** Connectivity and local spatial autocorrelation of extinction events in each region."
-# nb_moranI(ce="extinction")
-# #'
-# #' ####Figure 6b. Unique Extinction neighborhood
-# #+ uext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 6b.** Connectivity and local spatial autocorrelation of extinction events (each species only counted once per stratum) in each region."
-# nb_moranI(ce="uExt")
 #'   
 #' ##Figure S3. Total Extinction neighborhood
 #+ totext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S3.** Connectivity and local spatial autocorrelation of extinction events (each species possibly counted more than once per stratum) in each region."
@@ -426,77 +398,16 @@ for(r in 1:length(ureg)){
 		mtext(ureg[r],side=3,line=0.5,font=2)
 	}]
 }
+
+
+
+
+
 #'   
 #' \FloatBarrier  
 #'   
 #' ***  
-#' 
-#+ tbl-fracColExtInHotspot
-nLSA <- mapDat[,j={
-	sigRichInd <- lI_pvalue_rich<0.05
-	sigColInd <- lI_pvalue_totCol<0.05
-	sigExtInd <- lI_pvalue_totExt<0.05
-	muCol <- mean(totCol)
-	muExt <- mean(totExt)
-	hotspotIndCol <- sigColInd & (totCol > muCol)
-	hotspotIndExt <- sigExtInd & (totExt > muExt)
-	
-	list(
-		nSites = length(unique(stratum)),
-		
-		nRichLSA = sum(sigRichInd),
-		nRichHotspot = sum(sigRichInd & (avgRich > mean(avgRich))),
-		nRichColdspot = sum(sigRichInd & (avgRich < mean(avgRich))),
-		
-		nColLSA = sum(sigColInd),
-		nColHotspot = sum(hotspotIndCol),
-		nColColdspot = sum(sigColInd & (totCol < muCol)),
-		
-		nExtLSA = sum(sigExtInd),
-		nExtHotspot = sum(hotspotIndExt),
-		nExtExtdspot = sum(sigExtInd & (totExt < muExt))
-	)
-},by=c("reg")]
-kable(nLSA)
 #'   
-#' \FloatBarrier  
-#'   
-#' ***  
-#' 
-#' ##Exploring 'Endemism' Patterns
-#' One of the hypotheses was that sites with higher richness might have higher local colonizations and extinctions. If the richness at the site is also endemic -- meaning the species occurs at no other sites in the region -- then any local colonization or extinction of that endemic species is also a regional colonization or extinction. Therefore, in addition to knowing whether or not richness is correlated with colonization or extinction, we should also determine whether there is a degree of endemism at any of these sites. Otherwise, the simple proposed mechanism explaining relationships between richness and col/ext does not apply.
-#+ endemism-calc, echo=TRUE
-#' For each site in a region, how many of that site's occupants tend to occupy other sites at the same time?
-endo <- trawlDiversity::data_all[reg!='wcann' & K==1,j={
-	
-	totStrat <- length(unique(stratum))
-	list(stratum=stratum, totStrat=totStrat)
-	
-},by=c('reg','year','spp')]
-print(endo[,sum(totStrat==1),by=c('reg','spp')])
-
-
-#' Number of species that are only present in 1 site per year per region: `r endo[,max(totStrat),by=c('reg','spp')][,sum(V1==1)]`  
-#' A list of the species that appear in only 1 site at a time:  
-kable(endo[,max(totStrat),by=c('reg','spp')][V1==1])
-#' Most of these examples are from the NEUS and GMEX. The one from SA is the Gaftopsail Sea Catfish. It's not super rare at all. In the full data set it was found in multiple strata in the same year, just not necessarily for K==1.  
-#'   
-#' Here's some examples of what I looked at from the NEUS  
-sppImg("Syacium papillosum") 
-data_all[spp=="Syacium papillosum", plot(lon, lat, col=as.factor(reg))]; map(add=TRUE)
-#' This species is only ever found in 1 site at a time in NEUS. According to fish base (http://www.aquamaps.org/receive.php?type_of_map=regular), it should be fairly rare north of Capte Hatteras
-#'   
-sppImg("Decapterus punctatus")
-data_all[spp=="Decapterus punctatus", plot(lon, lat, col=as.factor(reg))]; map(add=TRUE) 
-#' Example of a species that only ever appeared in one site at a time (in a region). However, this strikes me as odd because the species is apparently more widely distributed throughout the NEUS than this map shows, according to fishbase (http://www.aquamaps.org/receive.php?type_of_map=regular). It's also a pelagic, so initially I just thought this was a sampling issue.
-#'   
-#' Now to examine the question from a site perspective.
-e1 <- endo[,list(avg_totStrat=mean(totStrat)),by=c("reg","year","stratum")]
-e2 <- e1[,list(avg_totStrat=mean(avg_totStrat)),by=c("reg","stratum")]
-par(mfrow=c(3,3))
-merge(mapDat, e2)[,j={hist(avg_totStrat, main=reg[1]);NULL}, by='reg']
-
-
 #' #Beta Diversity Clustering of Sites w/ Local AC
 #' ##Geographic Distance and Beta Diversity Functions
 #+ betaD-AC-Cluster-functions
@@ -584,8 +495,6 @@ strat2ll <- function(stratum){
 }
 
 
-
-# ---- cluster sites ----
 #' ##Data for Col/ Ext Clustering & Local Community Composition
 #+ betaD-AC-Cluster-data
 #' First get the sites that have significant local spatial AC  
@@ -603,19 +512,6 @@ colDat <- data_all2[colSppYear, on=c('reg','spp','year')][colClustSite, on=c("re
 extDat <- data_all2[extSppYear, on=c('reg','spp','year')][extClustSite, on=c("reg", "stratum"), eval(subCols)]#[!is.na(lon)]
 
 
-# lay_mat0 <- as.matrix(raster::disaggregate(raster::raster(matrix(1:9, nrow=3)), fact=4))
-# lay_mat <- lay_mat0
-# for(r in 1:length(ur)){
-# 	val <- 1 + 2*(r-1)
-# 	ind <- lay_mat0==r
-# 	lay_mat[ind] <- val
-# 	nr <- sqrt(sum(ind))
-# 	slm <- (lay_mat[ind])
-# 	tm <- matrix(lay_mat[ind], nrow=nr)
-# 	diag(tm) <- c(rep(val+1, nr/2), rep(val, nr/2))
-# 	lay_mat[ind] <- tm
-# }
-
 #' ##Figure: Colonization AC & Beta Diversity Clustering
 #+ betaD-AC-Cluster-colFig, fig.cap="**Exploratory Figure.** Sites are labeled with a letter if their rates of EXTINCTION have significant local spatial autocorrelation (AC). In the left-hand panels, their geographic locations are shown. In the right-hand panels are dendrograms that are drawn via hierarchical clustering using beta diversity as the distance metric. Thus, left-hand panels indicate clustering based on spatial AC of EXTINCTION rates, and the right-hand panels indicate clustering based on beta diversity. Color boxes are drawn around dendrograms clusters (though some do not show up, and I'm not entirely sure why)."
 par(mfrow=c(9,2), mar=c(1,1,0.25,0.25), cex=1, ps=8)
@@ -626,54 +522,93 @@ dendroMap(colDat)
 par(mfrow=c(9,2), mar=c(1,1,0.25,0.25), cex=1, ps=8)
 dendroMap(extDat)
 
-# ur <- colDat[,unique(reg)]
-# for(r in 1:length(ur)){
-# 	tdt <- colDat[reg==ur[r],list(spp=unique(spp), pres=1),by=c('reg','stratum')]
-# 	tmat <- reshape2::acast(tdt, stratum~spp, value.var='pres')
-# 	tmat[is.na(tmat)] <- 0
-#
-# 	if(nrow(tmat) > 1){
-# 		bD <- betaDist(tmat)
-# 		hcbd <- hclust(bD);
-# 		clusts <- cutree(hcbd, h=0.7)
-#
-# 		col_opts <- viridis::viridis(length(unique(clusts)))
-# 		nameCol_key <- data.table(stratum=hcbd$labels, ord=hcbd$order, short=LETTERS[1:nrow(tmat)], clusts=clusts, col=col_opts[clusts])
-#
-# 		strat_names <- nameCol_key[,stratum] #hcbd$labels[hcbd$order] #rownames(tmat)
-# 		strat_names_short <- structure(nameCol_key[,short], .Names=nameCol_key[,stratum])
-#
-# 		clustCol <- nameCol_key[,unique(col)[unique(clusts[ord])]] #nameCol_key[,unique(col)] #viridis::viridis(length(unique(clusts)))
-# 		stratCol <- nameCol_key[,col] #clustCol[clusts]
-# 		names(stratCol) <- nameCol_key[,stratum] #strat_names
-#
-# 		hcbd$labels <- nameCol_key[,short]#[order(hcbd$order)] #strat_names_short[order(hcbd$order)]
-# 	}else{
-# 		if(nrow(tmat)>0){
-# 			strat_names <- rownames(tmat)
-# 			strat_names_short <- structure(LETTERS[1:nrow(tmat)], .Names=strat_names)
-# 			clustCol <- viridis::viridis(1)
-# 			stratCol <- clustCol
-# 			names(stratCol) <- strat_names
-# 		}
-# 	}
-#
-# 	plot(mapOwin[[ur[r]]], main='')
-# 	if(nrow(tmat)>0){
-# 		ll <- strat2ll(strat_names)
-# 		text(x=(ll$lon), y=(ll$lat), strat_names_short, col=stratCol[strat_names])
-# 	}
-#
-# 	if(nrow(tmat) > 1){
-# 		plot(as.dendrogram(hcbd), leaflab='perpendicular')
-# 		if(sum(hcbd$height < 0.7)>1 & sum(hcbd$height > 0.7)>1){
-# 			rect.hclust(hcbd, h=0.7, border=clustCol)
-# 		}
-# 	}else{
-# 		plot(1,1, type='n', xlab='', ylab='', xaxt='n', yaxt='n', bty='o')
-# 	}
-# }
+#'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#' 
+#' #Additional Exploratory Analyses
+#' ##Table: Fraction of Colonization and Extinctions in Hotspots
+#+ tbl-fracColExtInHotspot
+nLSA <- mapDat[,j={
+	sigRichInd <- lI_pvalue_rich<0.05
+	sigColInd <- lI_pvalue_totCol<0.05
+	sigExtInd <- lI_pvalue_totExt<0.05
+	muCol <- mean(totCol)
+	muExt <- mean(totExt)
+	hotspotIndCol <- sigColInd & (totCol > muCol)
+	hotspotIndExt <- sigExtInd & (totExt > muExt)
+	
+	list(
+		nSites = length(unique(stratum)),
+		
+		nRichLSA = sum(sigRichInd),
+		nRichHotspot = sum(sigRichInd & (avgRich > mean(avgRich))),
+		nRichColdspot = sum(sigRichInd & (avgRich < mean(avgRich))),
+		
+		nColLSA = sum(sigColInd),
+		nColHotspot = sum(hotspotIndCol),
+		nColColdspot = sum(sigColInd & (totCol < muCol)),
+		
+		nExtLSA = sum(sigExtInd),
+		nExtHotspot = sum(hotspotIndExt),
+		nExtExtdspot = sum(sigExtInd & (totExt < muExt))
+	)
+},by=c("reg")]
+kable(nLSA)
+
+#'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#' 
+#' #Exploring 'Endemism' Patterns
+#' One of the hypotheses was that sites with higher richness might have higher local colonizations and extinctions. If the richness at the site is also endemic -- meaning the species occurs at no other sites in the region -- then any local colonization or extinction of that endemic species is also a regional colonization or extinction. Therefore, in addition to knowing whether or not richness is correlated with colonization or extinction, we should also determine whether there is a degree of endemism at any of these sites. Otherwise, the simple proposed mechanism explaining relationships between richness and col/ext does not apply.
+#' ##Table of Endemic Species 
+#+ endemism-calc, echo=TRUE
+#' For each site in a region, how many of that site's occupants tend to occupy other sites at the same time?
+endo <- trawlDiversity::data_all[reg!='wcann' & K==1,j={
+	
+	totStrat <- length(unique(stratum))
+	list(stratum=stratum, totStrat=totStrat)
+	
+},by=c('reg','year','spp')]
+# print(endo[,sum(totStrat==1),by=c('reg','spp')])
+
+#' Number of species that are only present in 1 site per year per region: `r endo[,max(totStrat),by=c('reg','spp')][,sum(V1==1)]`  
+#' A list of the species that appear in only 1 site at a time:  
+kable(endo[,max(totStrat),by=c('reg','spp')][V1==1])
+
+#' ##Figure: Example 1 of 'Endemic' Species
+#' Most of these examples are from the NEUS and GMEX. The one from SA is the Gaftopsail Sea Catfish. It's not super rare at all. In the full data set it was found in multiple strata in the same year, just not necessarily for K==1.  
+#'   
+#' Here's some examples of what I looked at from the NEUS  
+sppImg("Syacium papillosum") 
+data_all[spp=="Syacium papillosum", plot(lon, lat, col=as.factor(reg))]; map(add=TRUE)
+#' This species is only ever found in 1 site at a time in NEUS. According to fish base (http://www.aquamaps.org/receive.php?type_of_map=regular), it should be fairly rare north of Capte Hatteras
+#'   
+#' ##Figure: Example 2 of 'Endemic' Species
+sppImg("Decapterus punctatus")
+data_all[spp=="Decapterus punctatus", plot(lon, lat, col=as.factor(reg))]; map(add=TRUE) 
+#' Example of a species that only ever appeared in one site at a time (in a region). However, this strikes me as odd because the species is apparently more widely distributed throughout the NEUS than this map shows, according to fishbase (http://www.aquamaps.org/receive.php?type_of_map=regular). It's also a pelagic, so initially I just thought this was a sampling issue.
+#'   
+#' ##Figure. Average number of other sites occupied by a site's denizens
+#' Now to examine the question from a site perspective. For each site, we can look at each species in that site, and ask how many other sites also contain that species. It's kinda like spatial beta diversity.  
+#'   
+#' Average number of sites containing this site's occupants
+e1 <- endo[,list(avg_totStrat=mean(totStrat)),by=c("reg","year","stratum")] # avg over spp
+e2 <- e1[,list(avg_totStrat=mean(avg_totStrat)),by=c("reg","stratum")] # avg over time
+par(mfrow=c(3,3), oma=c(0.2,0.2,1,0.2))
+merge(mapDat, e2)[,j={hist(avg_totStrat, main=reg[1]);NULL}, by='reg']
+mtext("Total Sites Occupied by each Site's Occupants", side=3, line=-0.5, font=2, outer=TRUE)
 
 
-
-
+#'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#'   
+#' #Info
+#+ systemSettings, results='markup'
+Sys.time()
+sessionInfo()
