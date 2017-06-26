@@ -1,6 +1,6 @@
 Package: spatialDiversity
 Title: The spatial footprint of changing species richness
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
 Description: This package contains the data, statistical analysis, and
     figures used in the production of a manuscript about the spatial patterns of
