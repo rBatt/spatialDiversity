@@ -4,7 +4,7 @@
 #' 
 #' @param ... not used
 #' 
-#' @value Returns a quoted expression that can be evaluated with eval()
+#' @return Returns a quoted expression that can be evaluated with eval()
 #' 
 #' @examples
 #' local({
@@ -17,6 +17,7 @@
 #' 		mtext(pretty_reg[i], side=3, line=-2, font=2)
 #' 	}
 #' })
+#' @export
 figure_setup <- function(...){
 	bquote({
 		regs <- trawlDiversity::comm_master[,una(reg)] #sapply(p, function(x)x$processed[,una(reg)])
@@ -33,6 +34,7 @@ figure_setup <- function(...){
 #' @param ... other arguments, currently not used
 #' 
 #' @return Returns nothing, but adds letter labels to panels
+#' @export
 panLab <- function(...){
 	pm <- par("mfg")
 	nmat <- matrix(1:(prod(pm[3:4])), nr=pm[3], nc=pm[4])

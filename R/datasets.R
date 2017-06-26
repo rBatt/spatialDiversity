@@ -74,6 +74,20 @@
 #' @format list data.table
 "col_ext_dt"
 
+#' A lightweight equivalent of trawlDiversity's spp_master
+#' 
+#' Includes species, year, region, and the colonization/ extinction events
+#' 
+#' @format list data.table
+"spp_master2"
+
+#' Colonization and Extinction Sites, Distances
+#' 
+#' The sites (strata) of colonizations, extinctions, and the distances between these pairs of sites. Colonization-extinction pairs are on a per-species basis (and per region), extinction events always follow colonization events, the species has to be present for more than 1 year in a row. Note that only species that both colonize and go extinct are included here.
+#' 
+#' @format list data.table
+"from_to"
+
 
 
 
