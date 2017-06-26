@@ -1,18 +1,37 @@
 Package: spatialDiversity
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
+Title: The spatial footprint of changing species richness
+Version: 0.0.1
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.3.0),
+Description: This package contains the data, statistical analysis, and
+    figures used in the production of a manuscript about the spatial patterns of
+    biodiversity change in 9 marine regions. Here I consider "biodiversity" to be
+    species richness; specifically, regional species richness. Each of the nine
+    regions contains many sites (between 20 and 200, e.g.). Previously, I've found
+    that over the long-term (20-40 yrs), species richness is increasing or ~net
+    stable in these regions. Changes in species richness are due to colonizations
+    and extinctions. To better understand these documented changes in richness,
+    this package/ paper looks at where these colonization/ extinction events occur.
+    Species tend to be geographically rare (occupying few sites within a region)
+    just after they colonize, or just before they go extinct. Therefore, for any one
+    (col/ext) event, few sites are involved. However, if we look at the locations of
+    these events over time and across species, are the events randomly distributed
+    through space, or do they cluster? Does the location where a species went
+    extinct tend to be near or far from the site where it first colonized? These
+    analyses answer those questions.
+Depends:
+    R (>= 3.3.0),
     data.table,
     trawlData,
     trawlDiversity
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: rbLib,
+Imports:
+    rbLib,
     stats,
     methods
-Suggests: knitr,
+Suggests:
+    knitr,
     rmarkdown
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
