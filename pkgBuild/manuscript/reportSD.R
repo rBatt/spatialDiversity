@@ -379,6 +379,125 @@ kable(extRich_mod_sum, caption="Table. Statistics for totExt~avgRich linear regr
 #' Want to analyze the geographic proximity of colonization/ extinction sites on a per-species basis. Hotspots for colonization events might be formed by species that do not go extinct in the extinction hotspots. Seems unlikely, but is possible; especially because the percentage of c/e events in a hotspot is small (relative to total number of events across all sites).
 
 
+# ========
+# = HERE =
+# ========
+colSppYear <- col_ext_dt[col==1, list(spp, year), by='reg']
+extSppYear <- col_ext_dt[ext==1, list(spp, year), by='reg']
+subCols <- expression(list(reg, year, spp, stratum, K, Kmax, lon, lat, wtcpue, btemp, depth))
+colDat <- data_all2[colSppYear, eval(subCols), on=c('reg','spp','year')]#[colClustSite, on=c("reg", "stratum"), eval(subCols)] #[!is.na(lon)]
+extDat <- data_all2[extSppYear, eval(subCols), on=c('reg','spp','year')]#[extClustSite, on=c("reg", "stratum"), eval(subCols)]#[!is.na(lon)]
+
+
+# get the from-to (above)
+# for each region, pull out all the unique "from" sites, and calculate their distances to all possible "to" sites
+# this will give a reference distribution of "from-to" where "from" is a colonization, and "to" is all other sites in the region
+col_sites <- unique(from_to[,list(from_lon, from_lat), keyby=c("reg","from_site")], by=c('reg','from_site'))
+all_sites <- data_all2[,stratum2ll(unique(stratum)),by='reg']
+setnames(all_sites, c("site", "lon", "lat"), c("all_site","all_lon","all_lat"))
+col_all_sites <- merge(col_sites, all_sites, by=c('reg'), allow.cartesian=TRUE)
+setkey(col_all_sites, reg, from_site, all_site)
+
+tfs <- from_to[,list(reg,from_site,to_site,dist)]
+b <- c("reg","from_site")
+from_all <- merge(col_all_sites, tfs, by.x=c(b,"all_site"), by.y=c(b,"to_site"), all=TRUE)
+from_all[from_site==all_site, dist:=0] # fills in some extra NA's
+from_all[is.na(dist),dist:=geoDist(x=data.table(from_lon, from_lat), y=data.table(all_lon, all_lat))]
+setnames(from_all, "dist", "nullDist")
+
+
+# now i need to think about how to calculate the k-s statistic 
+# at what level should i do the aggregating? My first reaction is 'i want to analyze the distributions at the event level' 
+# which means that i don't want to test if various combinations of the col-ext location pairs are likely or unlikely given the null
+# To get a p-value for each event, i could compare the observed c-e distances to the null distances where from_site is the observed colonization site
+# To get a p-value for the region, the first step would be to aggregate distances for each event. For the observed distances, I would just take the average `dist` for a given colonization event. For the null distances, I would subset from_all so that from_site matched the colonization site. In this subset, from_all[subIndex,all_site] would be all possible extinction sites. I would take the average of from_all[subIndex, nullDist] (the distances associated with the from_site of interest and all the all_site extinction site candidates)
+
+
+# nullDists <- structure(vector('list', 9), .Names=c(ur))
+# obsDists <- structure(vector('list', 9), .Names=c(ur))
+#
+# from_to[,list(reg, obsDist=dist)]
+# ft <- from_to[,list(r=reg, fs=from_site)]
+# from_all[paste(reg,from_site)%in%ft[,paste(r,fs)]]
+#
+# from_all_mu <- from_all[,list(muNullDist=mean(nullDist), n=nrow(.SD)),by=c("reg", "from_site")]
+# from_to_mu <- from_to[,list(muObsDist=mean(dist)),by=c("reg", "spp", "from_year", "from_site")] # incorrect b/c still splits events by multiple possible from_site s
+#
+# from_to_all_mu <- merge(from_to_mu, from_all_mu, all.x=TRUE, all.y=FALSE, by=c('reg','from_site'))
+
+
+
+ce_dists <- from_to[,j={
+	r <- unique(reg)
+	fs <- unique(from_site)
+	subNull <- from_all[reg==r & from_site%in%fs]
+	
+	muDistNull <- subNull[,mean(nullDist)]
+	muDistObs <- mean(dist)
+	
+	nullDists[reg[1]] <<- c(nullDists[reg[1]], subNull[,nullDist])
+	
+	ks_event <- ks.test(x=dist, y=subNull[,nullDist])
+	
+	if(length(subNull[,nullDist])>1 & length(dist) >1){
+		t_event <- t.test(x=dist, y=subNull[,nullDist])
+	}else{
+		t_event <- list(statistic=NA_real_, p.value=NA_real_)
+	}
+	
+	
+	list(muDistObs=muDistObs, muDistNull=muDistNull, ks_event_stat=ks_event$statistic, ks_event_pval=ks_event$p.value, t_event_stat=t_event$statistic, t_event_pval=t_event$p.value)
+	
+},by=c('reg','spp','from_year','to_year')]
+
+
+ce_dists[,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # distribution of event-level t-statistics; to compute these statistics, there needed to more than one site for the colonization and/or extinction (so that there were multiple distances to compare)
+ce_dists[t_event_pval<0.05,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # same as above, but only plots the statistics for significant events. The outcome is similar, but generally becomes more extreme. For example, NEUS and Newf no longer have their upper quantile at or above 0, meaning that the extinction and colonization sites were closer together than would be expected by random.
+
+
+
+#+ geoDist-density-figure
+par(mfrow=c(3,3), mar=c(2.5,2.5,1,0.1), mgp=c(1,0.25,0), tcl=-0.25, ps=8, cex=1)
+ur <- unique(names(pretty_reg))
+for(r in 1:length(ur)){
+	ced <- ce_dists[reg==ur[r]]
+	ced[, j={
+		densObs <- density(muDistObs, from=0)
+		densNull <- density(muDistNull, from=0)
+		xlim <- range(c(densObs$x, densNull$x))
+		ylim <- range(c(densObs$y, densNull$y))
+		plot(densNull, main='', xlim=xlim, ylim=ylim, xlab="Geographic Distance (km)", lty=2)
+		lines(densObs, col='red', lty=1)
+		mtext(pretty_reg[ur[r]], side=3, adj=0.05, font=2)
+	}]
+	if(r==1){
+		legend('topright', legend=c("Null", "Observed"), lty=c(2,1), col=c("black","red"), bty='n')
+	}
+}
+
+#+ geoDist-ttest-table
+grandDistTest <- ce_dists[,j={
+	tto <- t.test(x=muDistObs, y=muDistNull)
+	gmdO <- mean(muDistObs)
+	gmdN <- mean(muDistNull)
+	delMu <- gmdO-gmdN
+	list(grandMuDistObs=gmdO, grandMuDistNull=gmdN, deltaMu=delMu, t_grand_stat=tto$statistic, t_grand_df=tto$parameter, t_grand_pval=tto$p.value)
+}, by=c('reg')]
+grandDistTest[,t_grand_pval_adj:=p.adjust(t_grand_pval, method="BH")]
+kable(grandDistTest, caption="Table. ")
+
+#+ eventOverlap-table
+sharedSites <- from_to[,j={
+	from_prop <- sum(from_site%in%to_site)/length(from_site)
+	to_prop <- sum(to_site%in%from_site)/length(to_site)
+	bothSite <- unique(c(from_site, to_site))
+	bi_prop <- sum(bothSite%in%from_site & bothSite%in%to_site)/length(bothSite)
+	list(from_prop=from_prop, to_prop=to_prop, bi_prop=bi_prop)
+},by=c("reg","spp","from_year","to_year")]
+sharedSites_summary <- sharedSites[,list(from_prop=mean(from_prop), to_prop=mean(to_prop), bi_prop=mean(bi_prop)), by=c("reg")]
+
+
+
 #'   
 #' \FloatBarrier  
 #'   
