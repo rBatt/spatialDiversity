@@ -378,7 +378,7 @@ kable(extRich_mod_sum, caption="Table. Statistics for totExt~avgRich linear regr
 #' #Distance Between Colonization & Extinction Sites
 #' Want to analyze the geographic proximity of colonization/ extinction sites on a per-species basis. Hotspots for colonization events might be formed by species that do not go extinct in the extinction hotspots. Seems unlikely, but is possible; especially because the percentage of c/e events in a hotspot is small (relative to total number of events across all sites).
 
-
+#+ geoDist-calculation
 # ========
 # = HERE =
 # ========
@@ -426,7 +426,7 @@ setnames(from_all, "dist", "nullDist")
 # from_to_all_mu <- merge(from_to_mu, from_all_mu, all.x=TRUE, all.y=FALSE, by=c('reg','from_site'))
 
 
-
+#+ geoDist-calcTest
 ce_dists <- from_to[,j={
 	r <- unique(reg)
 	fs <- unique(from_site)
@@ -434,8 +434,6 @@ ce_dists <- from_to[,j={
 	
 	muDistNull <- subNull[,mean(nullDist)]
 	muDistObs <- mean(dist)
-	
-	nullDists[reg[1]] <<- c(nullDists[reg[1]], subNull[,nullDist])
 	
 	ks_event <- ks.test(x=dist, y=subNull[,nullDist])
 	
@@ -445,18 +443,11 @@ ce_dists <- from_to[,j={
 		t_event <- list(statistic=NA_real_, p.value=NA_real_)
 	}
 	
-	
 	list(muDistObs=muDistObs, muDistNull=muDistNull, ks_event_stat=ks_event$statistic, ks_event_pval=ks_event$p.value, t_event_stat=t_event$statistic, t_event_pval=t_event$p.value)
 	
 },by=c('reg','spp','from_year','to_year')]
 
-
-ce_dists[,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # distribution of event-level t-statistics; to compute these statistics, there needed to more than one site for the colonization and/or extinction (so that there were multiple distances to compare)
-ce_dists[t_event_pval<0.05,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # same as above, but only plots the statistics for significant events. The outcome is similar, but generally becomes more extreme. For example, NEUS and Newf no longer have their upper quantile at or above 0, meaning that the extinction and colonization sites were closer together than would be expected by random.
-
-
-
-#+ geoDist-density-figure
+#+ geoDist-calcTest-density-figure
 par(mfrow=c(3,3), mar=c(2.5,2.5,1,0.1), mgp=c(1,0.25,0), tcl=-0.25, ps=8, cex=1)
 ur <- unique(names(pretty_reg))
 for(r in 1:length(ur)){
@@ -475,6 +466,12 @@ for(r in 1:length(ur)){
 	}
 }
 
+
+#+ geoDist-ttest-boxplot
+par(mfrow=c(1,1))
+ce_dists[,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # distribution of event-level t-statistics; to compute these statistics, there needed to more than one site for the colonization and/or extinction (so that there were multiple distances to compare)
+ce_dists[p.adjust(t_event_pval, method="BH")<0.05,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # same as above, but only plots the statistics for significant events. The outcome is similar, but generally becomes more extreme. For example, NEUS and Newf no longer have their upper quantile at or above 0, meaning that the extinction and colonization sites were closer together than would be expected by random.
+
 #+ geoDist-ttest-table
 grandDistTest <- ce_dists[,j={
 	tto <- t.test(x=muDistObs, y=muDistNull)
@@ -485,6 +482,35 @@ grandDistTest <- ce_dists[,j={
 }, by=c('reg')]
 grandDistTest[,t_grand_pval_adj:=p.adjust(t_grand_pval, method="BH")]
 kable(grandDistTest, caption="Table. ")
+
+#+ geoDist-lmer-table
+mod_dists <- from_to[,j={
+	r <- unique(reg)
+	fs <- unique(from_site)
+	subNull <- from_all[reg==r & from_site%in%fs]
+	
+	muDistNull <- subNull[,mean(nullDist)]
+	muDistObs <- mean(dist)
+	
+	gd <- c(dist, subNull[,nullDist])
+	treat <- c(rep('obs',length(dist)), rep('null', length(subNull[,nullDist])))
+	
+	list(dist=gd, treat=treat, event=.GRP)
+	
+},by=c('reg','spp','from_year','to_year')]
+mod_dists[,event:=as.factor(event)]
+
+
+dist_sumry <- function(X){
+	tmd <- lme4::lmer(dist~treat + (treat|event), data=X)
+	treat_mu <- lapply(coef(tmd)[[1]], mean)[[2]]
+	pval <- car::Anova(tmd)[,"Pr(>Chisq)"]
+	data.table(treat=treat_mu, pval=pval)
+}
+mds <- mod_dists[,j={dist_sumry(.SD)}, by=c("reg")]
+mds[,pval:=p.adjust(pval, method="BH")]
+kable(mds)
+
 
 #+ eventOverlap-table
 sharedSites <- from_to[,j={
