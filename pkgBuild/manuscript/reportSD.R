@@ -447,7 +447,8 @@ ce_dists <- from_to[,j={
 	
 },by=c('reg','spp','from_year','to_year')]
 
-#+ geoDist-calcTest-density-figure
+#' ##Figure. Densities for Null and Observed C-E Distances
+#+ geoDist-calcTest-density-figure, fig.cap="**Figure.** Distribution between colonization sites and all sites (dashed), and between observed sites of colonization and extinction. The idea is to test whether the geographic orientation of extinction sites relative to the preceding colonization sites is radom."
 par(mfrow=c(3,3), mar=c(2.5,2.5,1,0.1), mgp=c(1,0.25,0), tcl=-0.25, ps=8, cex=1)
 ur <- unique(names(pretty_reg))
 for(r in 1:length(ur)){
@@ -466,12 +467,15 @@ for(r in 1:length(ur)){
 	}
 }
 
-
-#+ geoDist-ttest-boxplot
+#' ##Figure. Boxplot for C-E t-statistics
+#+ geoDist-ttest-boxplot1, fig.cap="**Figure.** T-statistics for ALL TESTS of distances between sites involved in pairs of colonizations and extinctions. Observed distances were compared to a null distribution of distances between observed colonizations and all other sites."
 par(mfrow=c(1,1))
 ce_dists[,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # distribution of event-level t-statistics; to compute these statistics, there needed to more than one site for the colonization and/or extinction (so that there were multiple distances to compare)
+
+#+ geoDist-ttest-boxplot2, fig.cap="**Figure.** T-statistics for SIGNIFICANT TESTS of distances between sites involved in pairs of colonizations and extinctions. Observed distances were compared to a null distribution of distances between observed colonizations and all other sites."
 ce_dists[p.adjust(t_event_pval, method="BH")<0.05,j={boxplot(t_event_stat~reg, outline=FALSE);abline(h=0);NULL}] # same as above, but only plots the statistics for significant events. The outcome is similar, but generally becomes more extreme. For example, NEUS and Newf no longer have their upper quantile at or above 0, meaning that the extinction and colonization sites were closer together than would be expected by random.
 
+#' ##Table. T-statistics for C-E Distances
 #+ geoDist-ttest-table
 grandDistTest <- ce_dists[,j={
 	tto <- t.test(x=muDistObs, y=muDistNull)
@@ -481,8 +485,9 @@ grandDistTest <- ce_dists[,j={
 	list(grandMuDistObs=gmdO, grandMuDistNull=gmdN, deltaMu=delMu, t_grand_stat=tto$statistic, t_grand_df=tto$parameter, t_grand_pval=tto$p.value)
 }, by=c('reg')]
 grandDistTest[,t_grand_pval_adj:=p.adjust(t_grand_pval, method="BH")]
-kable(grandDistTest, caption="Table. ")
+kable(grandDistTest, caption="Table. Comparing distances between sites of colonizations and extinctions to distances between colonizations and all sites in the region. Separate t-test for each colonization-extinction pair, and the statistics summarized within a region.")
 
+#' ##Table. Mixed Effects Model for C-E Distances
 #+ geoDist-lmer-table
 mod_dists <- from_to[,j={
 	r <- unique(reg)
@@ -509,9 +514,10 @@ dist_sumry <- function(X){
 }
 mds <- mod_dists[,j={dist_sumry(.SD)}, by=c("reg")]
 mds[,pval:=p.adjust(pval, method="BH")]
-kable(mds)
+kable(mds, caption="Table. Comparing distances between sites of colonizations and extinctions to distances between colonizations and all sites in the region.")
 
 
+#' ##Table. Overlap in Site Identity for C-E Pairs
 #+ eventOverlap-table
 sharedSites <- from_to[,j={
 	from_prop <- sum(from_site%in%to_site)/length(from_site)
@@ -521,7 +527,7 @@ sharedSites <- from_to[,j={
 	list(from_prop=from_prop, to_prop=to_prop, bi_prop=bi_prop)
 },by=c("reg","spp","from_year","to_year")]
 sharedSites_summary <- sharedSites[,list(from_prop=mean(from_prop), to_prop=mean(to_prop), bi_prop=mean(bi_prop)), by=c("reg")]
-
+kable(sharedSites_summary)
 
 
 #'   
@@ -565,21 +571,21 @@ betaDist <- function(Y){
 	ade4::dist.binary(Y, method=1)^2
 }
 
-geoDist <- function(x, y){
-	if(!is.null(nrow(x))){
-		x <- as.matrix(x)
-	}
-	if(!is.null(nrow(y))){
-		y <- as.matrix(y)
-	}
-	
-	x180 <- x < -180
-	x[x180] <- x[x180] + 360
-	y180 <- y < -180
-	y[y180] <- y[y180] + 360
-	
-	geosphere::distVincentyEllipsoid(x, y)/1E3
-}
+# geoDist <- function(x, y){
+# 	if(!is.null(nrow(x))){
+# 		x <- as.matrix(x)
+# 	}
+# 	if(!is.null(nrow(y))){
+# 		y <- as.matrix(y)
+# 	}
+#
+# 	x180 <- x < -180
+# 	x[x180] <- x[x180] + 360
+# 	y180 <- y < -180
+# 	y[y180] <- y[y180] + 360
+#
+# 	geosphere::distVincentyEllipsoid(x, y)/1E3
+# }
 
 dendroMap <- function(Dat){
 	ur <- Dat[,unique(reg)]
@@ -678,6 +684,15 @@ dendroMap(extDat)
 #' ***  
 #' 
 #' #Additional Exploratory Analyses
+#' ##Autocorrelation Test Statistic Summary
+#' Sites with significantly autocorrelated sites could hypothetically have either positive or negative coefficiences. Examining the test statistics for for each metric in each region will indicate whether autocorrelation was positive; if it is, significant autocorrelation can intuitively be interpretted as "clustering".  
+#'   
+#' Across all regions and sites, **colonization** LISA statistics ranged from `r mapDat[, range(Ii_totCol)][1]` to `r mapDat[, range(Ii_totCol)][2]`. For sites with p < 0.05, statistics ranged from `r mapDat[lI_pvalue_totCol < 0.05, range(Ii_totCol)][1]` to `r mapDat[lI_pvalue_totCol < 0.05, range(Ii_totCol)][2]`.  
+#'   
+#' Across all regions and sites, **extinction** LISA statistics ranged from `r mapDat[, range(Ii_totExt)][1]` to `r mapDat[, range(Ii_totExt)][2]`. For sites with p < 0.05, statistics ranged from `r mapDat[lI_pvalue_totExt < 0.05, range(Ii_totExt)][1]` to `r mapDat[lI_pvalue_totExt < 0.05, range(Ii_totExt)][2]`.  
+#'   
+#' Across all regions and sites, **richness** LISA statistics ranged from `r mapDat[, range(Ii_rich)][1]` to `r mapDat[, range(Ii_rich)][2]`. For sites with p < 0.05, statistics ranged from `r mapDat[lI_pvalue_rich < 0.05, range(Ii_rich)][1]` to `r mapDat[lI_pvalue_rich < 0.05, range(Ii_rich)][2]`.  
+
 #' ##Table: Number of Sites that are Cold- or Hotspots
 #+ tbl-nSitesColExtLSA
 nLSA <- mapDat[,j={
@@ -706,6 +721,69 @@ nLSA <- mapDat[,j={
 	)
 },by=c("reg")]
 kable(nLSA, caption="Number of sites in total, in coldspots, and in hotspots. Cluster definition (coldspot, hotspot) split across richness, colonization, and extinction.")
+
+
+#+ tbl-percSitesColExtLSA
+percLSA <- mapDat[,j={
+	sigRichInd <- lI_pvalue_rich<0.05
+	sigColInd <- lI_pvalue_totCol<0.05
+	sigExtInd <- lI_pvalue_totExt<0.05
+	muCol <- mean(totCol)
+	muExt <- mean(totExt)
+	hotIndCol <- sigColInd & (totCol > muCol)
+	hotIndExt <- sigExtInd & (totExt > muExt)
+	
+	list(
+		nSites = length(unique(stratum)),
+		
+		nRichLSA = sum(sigRichInd)/length(unique(stratum)),
+		nRichHot = sum(sigRichInd & (avgRich > mean(avgRich)))/length(unique(stratum)),
+		nRichCold = sum(sigRichInd & (avgRich < mean(avgRich)))/length(unique(stratum)),
+		
+		nColLSA = sum(sigColInd)/length(unique(stratum)),
+		nColHot = sum(hotIndCol)/length(unique(stratum)),
+		nColCold = sum(sigColInd & (totCol < muCol))/length(unique(stratum)),
+		
+		nExtLSA = sum(sigExtInd)/length(unique(stratum)),
+		nExtHot = sum(hotIndExt)/length(unique(stratum)),
+		nExtExtd = sum(sigExtInd & (totExt < muExt))/length(unique(stratum))
+	)
+},by=c("reg")]
+kable(percLSA, caption="Percentage of sites in each category (as a fraction of nSites)")
+
+
+#+ tbl-percSitesColExtLSA-category
+percLSAcateg <- mapDat[,j={
+	sigRichInd <- lI_pvalue_rich<0.05
+	sigColInd <- lI_pvalue_totCol<0.05
+	sigExtInd <- lI_pvalue_totExt<0.05
+	muCol <- mean(totCol)
+	muExt <- mean(totExt)
+	hotIndCol <- sigColInd & (totCol > muCol)
+	hotIndExt <- sigExtInd & (totExt > muExt)
+	
+	nRichLSA <- sum(sigRichInd)
+	nColLSA <- sum(sigColInd)
+	nExtLSA <- sum(sigExtInd)
+	
+	list(
+		nSites = length(unique(stratum)),
+		
+		nRichLSA = nRichLSA,
+		nRichHot = sum(sigRichInd & (avgRich > mean(avgRich)))/nRichLSA,
+		nRichCold = sum(sigRichInd & (avgRich < mean(avgRich)))/nRichLSA,
+		
+		nColLSA = sum(sigColInd),
+		nColHot = sum(hotIndCol)/nColLSA,
+		nColCold = sum(sigColInd & (totCol < muCol))/nColLSA,
+		
+		nExtLSA = sum(sigExtInd),
+		nExtHot = sum(hotIndExt)/nExtLSA,
+		nExtExtd = sum(sigExtInd & (totExt < muExt))/nExtLSA
+	)
+},by=c("reg")]
+kable(percLSAcateg, caption="For each category, what percentage of clusters wre hot vs coldspots? So divide numbers by nRichLSA, nColLSA, nExtLSA.")
+
 
 #' ##Table: Percentage of C/E Events in Hotspots/ Coldspots
 #+ tbl-percentEventsHotCold
