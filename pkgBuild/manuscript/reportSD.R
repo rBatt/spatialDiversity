@@ -430,7 +430,9 @@ setnames(from_all, "dist", "nullDist")
 ce_dists <- from_to[,j={
 	r <- unique(reg)
 	fs <- unique(from_site)
+	# ts <- unique(to_site)
 	subNull <- from_all[reg==r & from_site%in%fs]
+	# subNull <- from_all[reg==r & from_site%in%fs & !all_site%in%ts]
 	
 	muDistNull <- subNull[,mean(nullDist)]
 	muDistObs <- mean(dist)
