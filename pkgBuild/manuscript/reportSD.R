@@ -181,20 +181,31 @@ kable(
 	caption="The colonization and extinction intensity range and max/min ratio, and median among regions. Useful for assessing how big of a difference there is between red and blue for each region."
 )
 #'   
+#' \FloatBarrier  
+#'   
+#' ***  
+#'   
+
+#'   
 #' #Neighborhoods and Local Moran's I
 #' ##Figure S1. Richness neighborhood
-#+ rich-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 4.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
+#+ rich-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S1.** Connectivity and local spatial autocorrelation of richness in each region. Each site is represented by a point. Points connected by a line are neighbors. For each region, neighbors were determined by first calculating the minimum distance required to allow each site to have at least 1 neighbor. Neighbors of a focal point were then defined as the points within this minimum distance from the focal point. Local spatial autocorrelation is local Moran’s I, significant LMI is indicated by a solid point, the color of which indicates the value of the LMI statistic. The outline is the region boundary used for smoothing in Figure 3 (main text), but does not affect calculations of LMI."
 nb_moranI(ce="richness")
 #' 
 #' 
 #' ##Figure S2. Total Colonization neighborhood
-#+ totcol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure 5c.** Connectivity and local spatial autocorrelation of colonization events (each species possibly counted more than once per stratum) in each region."
+#+ totcol-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S2.** Connectivity and local spatial autocorrelation of colonization events (each species possibly counted more than once per stratum) in each region."
 nb_moranI(ce="totCol")
 #'   
 #'   
 #' ##Figure S3. Total Extinction neighborhood
 #+ totext-nb, echo=TRUE, fig.width=7, fig.height=3, fig.cap="**Figure S3.** Connectivity and local spatial autocorrelation of extinction events (each species possibly counted more than once per stratum) in each region."
 nb_moranI(ce="totExt")
+
+#' #Hotspots and Depth
+#' ##Figure S4.: Map of Hotspots and Depth
+#+ hotspotDepth-map-figure, fig.width=7, fig.height=3, fig.cap="**Figure S4.** Map of the locations of colonization and extinction hotspots for each region: A) E. Bering Sea, B) Gulf of Alaska, C) Aleutian Islands, D) Scotian Shelf, E) West Coast US, F) Newfoundland, G) Gulf of Mexico, H) Northeast US, I) Southeast US. Color indicates depth. Symbols indicate position of sites with clustering and above-average values of colonization (+), extinction (X), or both (diamond). Note that Figs. 1&2 placed symbols for sites with clustering, even if clusters were "coldspots", whereas this figure only indicates the location of hotspots."
+depthHotspot("totCol")
 #'   
 #' \FloatBarrier  
 #'   
