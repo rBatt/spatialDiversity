@@ -7,7 +7,7 @@ library('rbLib')
 library('spatialDiversity')
 library("data.table")
 
-cePCH <- function(region, ce_type=c("tot","u","original")){
+cePCH <- function(region, ce_type=c("tot","u","original"), specifyHotspot=FALSE){
 	ce_type <- match.arg(ce_type)
 	if(ce_type=="original"){
 		ce_type <- ""
@@ -24,11 +24,19 @@ cePCH <- function(region, ce_type=c("tot","u","original")){
 	sigColInd <- pval_col<0.05
 	sigExtInd <- pval_ext<0.05
 	
+	Col <- mD[,get(ce_suff[1])]
+	Ext <- mD[,get(ce_suff[2])]
 	muCol <- mD[,mean(get(ce_suff[1]))]
 	muExt <- mD[,mean(get(ce_suff[2]))]
 	
-	hotspotIndCol <- sigColInd #& (totCol > muCol)
-	hotspotIndExt <- sigExtInd #& (totExt > muExt)
+	if(specifyHotspot){
+		hotspotIndCol <- sigColInd & (Col > muCol)
+		hotspotIndExt <- sigExtInd & (Ext > muExt)
+	}else{
+		hotspotIndCol <- sigColInd #& (totCol > muCol)
+		hotspotIndExt <- sigExtInd #& (totExt > muExt)
+	}
+	
 	both <- hotspotIndExt&hotspotIndCol
 	neither <- !hotspotIndExt&!hotspotIndCol
 	
@@ -264,3 +272,64 @@ nb_moranI <- function(ce=c("richness", "colonization", "extinction", "uCol", "uE
 }
 
 
+# ---- Depth Hotspot ----
+depthHotspot <- function(ce=c("colonization","extinction","richness","uCol","uExt","totCol","totExt"), ce_type=c("tot","u","original"), main=NULL){
+		eval(figure_setup())
+		map_layout <- trawl_layout()
+		par(mar=c(0.25,0.25,0.25,0.25), mgp=c(0.25,0.075,0), tcl=-0.1, ps=8, cex=1, oma=c(0.1,0.1,0.1,0.1))
+		layout(map_layout)
+		pretty_reg <- c("ebs"="E. Bering Sea", "ai"="Aleutian Islands", "goa"="Gulf of Alaska", "wctri"="West\nCoast\nUS", "gmex"="Gulf of Mexico", "sa"="Southeast US", "neus"="Northeast US", "shelf"="Scotian Shelf", "newf"="Newfoundland")
+		
+		ce_type <- switch(ce,
+			colonization = 'original',
+			extinction = 'original',
+			richness = ce_type,
+			uCol = 'u',
+			uExt = 'u',
+			totCol = 'tot',
+			totExt = 'tot'
+		)
+
+		u_regs <- mapDat[,unique(reg)]
+		rs <- mapDat[,una(reg)]
+		nr <- length(rs)
+		mapPPP_ce <- list()
+		for(r in 1:nr){
+			tr <- rs[r]
+			# td <- mapDat[reg==tr]
+		
+			plot(mapOwin[[tr]], main="")
+			image(depth, add=TRUE)
+			plot(mapOwin[[tr]], add=TRUE)
+		
+			if(tr=="ai"){
+				w2 <- map('world2', plot=FALSE)
+				w2$x <- w2$x-360
+				map(w2, add=TRUE, fill=TRUE, col="lightgray")
+			}else{
+				map(add=TRUE, fill=TRUE, col="lightgray")
+			}
+		
+		
+			pc <- cePCH(tr, ce_type=ce_type, specifyHotspot=FALSE)
+			pc[[1]][pc[[1]]==1] <- NA
+		
+			sigRichInd <- mapDat[reg==tr, lI_pvalue_rich<0.05]
+			hotspotIndRich <- sigRichInd
+		
+			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col="white", lwd=3, cex=1.2)]	
+			mapDat[reg==tr, points(lon, lat, pch=pc[[1]], col=pc[[2]], cex=1.2, lwd=1)]
+			
+			switch(tr,
+				ebs = legend("topright", legend="A", bty='n', text.font=2, inset=c(-0.02,-0.15), cex=1.25, text.col='black'),
+				ai = legend("topleft", legend="C", bty='n', text.font=2, inset=c(-0.065,-0.2), cex=1.25, xpd=T),
+				goa = legend("topleft", legend="B", bty='n', text.font=2, inset=c(-0.065,-0.06), cex=1.25),
+				wctri = legend("topright", legend="E", bty='n', text.font=2, inset=c(-0.01,-0.05), cex=1.25, text.col='black'),
+				gmex = legend("topleft", legend="G", bty='n', text.font=2, inset=c(-0.175,-0.12), cex=1.25, text.col='black'),
+				sa = legend("topleft", legend="I", bty='n', text.font=2, inset=c(-0.15,-0.075), cex=1.25, text.col='black'),
+				neus = legend("topleft", legend="H", bty='n', text.font=2, inset=c(-0.125,-0.05), cex=1.25, text.col='black'),
+				shelf = legend("topleft", legend="D", bty='n', text.font=2, inset=c(-0.1,-0.125), cex=1.25, text.col='black'),
+				newf = legend("topright", legend="F", bty='n', text.font=2, inset=c(-0.01,-0.05), cex=1.25)
+			)
+		}
+}
